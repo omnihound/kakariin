@@ -1,0 +1,13 @@
+<h1><%= @competitor.full_name %></h1>
+
+<p class="muted">
+  <%= @competitor.grade_label || "Ungraded" %>
+  · <%= @competitor.country %>
+  <% if @competitor.gender %> · <%= @competitor.gender %><% end %>
+  <% if @competitor.date_of_birth %> · born <%= @competitor.date_of_birth %><% end %>
+</p>
+
+<p>
+  <%= link_to "Edit", edit_competitor_path(@competitor) %>
+  <%= button_to "Delete", @competitor, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this competitor?" } } %>
+</p>

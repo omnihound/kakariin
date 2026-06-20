@@ -1,0 +1,120 @@
+<p><%= link_to "← #{@division.tournament.name}", @division.tournament %></p>
+
+<h1><%= @division.name %> <span class="tag"><%= @division.status %></span></h1>
+
+<p class="muted">
+  <%= @division.competition_type %> · <%= @division.format.tr("_", " ") %>
+</p>
+
+<p>
+  <%= link_to "Edit", edit_division_path(@division) %>
+  <%= button_to "Delete", @division, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this division and all its matches?" } } %>
+</p>
+
+<% if @division.pools_then_elimination? %>
+  <h2>Pools</h2>
+  <%= link_to "New pool", new_division_pool_path(@division) %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Advancing</th>
+        <th>Competitors</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @pools.each do |pool| %>
+        <tr>
+          <td><%= link_to pool.name, pool %></td>
+          <td><%= pool.advancing_count %></td>
+          <td><%= pool.competitors.size %></td>
+          <td><span class="tag"><%= pool.status %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% elsif @division.individual? %>
+  <h2>Registrations</h2>
+  <%= link_to "Manage registrations", division_registrations_path(@division) %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Seed</th>
+        <th>Competitor</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @registrations.each do |registration| %>
+        <tr>
+          <td><%= registration.seed || "—" %></td>
+          <td><%= registration.competitor.full_name %></td>
+          <td><span class="tag"><%= registration.status %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+<% else %>
+  <h2>Team entries</h2>
+  <%= link_to "New team entry", new_division_team_entry_path(@division) %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Seed</th>
+        <th>Team</th>
+        <th>Members</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @team_entries.each do |team_entry| %>
+        <tr>
+          <td><%= team_entry.seed || "—" %></td>
+          <td><%= link_to team_entry.name, team_entry %></td>
+          <td><%= team_entry.competitors.map(&:full_name).join(", ") %></td>
+          <td><span class="tag"><%= team_entry.status %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<h2><%= @division.pools_then_elimination? ? "Playoff bracket" : "Matches" %></h2>
+
+<% if @division.pools_then_elimination? && @matches.none? %>
+  <p class="muted">The playoff bracket appears here once every pool has completed its round-robin.</p>
+<% end %>
+
+<%= button_to "Generate next round", division_bracket_path(@division), method: :post %>
+
+<% @matches.group_by(&:round).each do |round, matches| %>
+  <h3>Round <%= round %></h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Home</th>
+        <th>Away</th>
+        <th>Score</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% matches.each do |match| %>
+        <tr>
+          <td><%= participant_name(match.home) %></td>
+          <td><%= participant_name(match.away) %></td>
+          <td><%= match.home_score %> – <%= match.away_score %></td>
+          <td><span class="tag"><%= match.status %></span></td>
+          <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

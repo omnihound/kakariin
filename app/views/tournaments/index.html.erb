@@ -1,0 +1,26 @@
+<h1>Tournaments</h1>
+
+<%= link_to "New tournament", new_tournament_path %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Location</th>
+      <th>Dates</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @tournaments.each do |tournament| %>
+      <tr>
+        <td><%= link_to tournament.name, tournament %></td>
+        <td><%= tournament.location %></td>
+        <td><%= tournament.start_date %><% if tournament.end_date %> – <%= tournament.end_date %><% end %></td>
+        <td><span class="tag"><%= tournament.status %></span></td>
+        <td><%= link_to "Edit", edit_tournament_path(tournament) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,0 +1,30 @@
+<%= form_with model: pool, url: (pool.persisted? ? pool_path(pool) : division_pools_path(@division)) do |form| %>
+  <% if pool.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% pool.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :advancing_count, "Qualifiers advancing" %>
+    <%= form.number_field :advancing_count, min: 1, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.select :status, Pool.statuses.keys %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

@@ -1,0 +1,48 @@
+<p><%= link_to "← #{@division.name}", @division %></p>
+
+<h1>Registrations — <%= @division.name %></h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Seed</th>
+      <th>Competitor</th>
+      <th>Status</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @registrations.each do |registration| %>
+      <tr>
+        <td>
+          <%= form_with model: registration, url: division_registration_path(@division, registration), method: :patch, class: "inline" do |f| %>
+            <%= f.number_field :seed, value: registration.seed, size: 3 %>
+            <%= f.select :status, TournamentRegistration.statuses.keys, selected: registration.status %>
+            <%= f.submit "Update" %>
+          <% end %>
+        </td>
+        <td><%= registration.competitor.full_name %></td>
+        <td><span class="tag"><%= registration.status %></span></td>
+        <td>
+          <%= button_to "Remove", division_registration_path(@division, registration), method: :delete, class: "inline" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2>Add competitor</h2>
+
+<%= form_with url: division_registrations_path(@division), scope: :tournament_registration do |f| %>
+  <div class="field">
+    <%= f.label :competitor_id, "Competitor" %>
+    <%= f.collection_select :competitor_id, @available_competitors, :id, :full_name, include_blank: true %>
+  </div>
+  <div class="field">
+    <%= f.label :seed %>
+    <%= f.number_field :seed, min: 1 %>
+  </div>
+  <div class="actions">
+    <%= f.submit "Register" %>
+  </div>
+<% end %>

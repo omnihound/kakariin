@@ -1,0 +1,50 @@
+<%= form_with model: competitor do |form| %>
+  <% if competitor.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% competitor.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :first_name %>
+    <%= form.text_field :first_name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :last_name %>
+    <%= form.text_field :last_name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :gender %>
+    <%= form.select :gender, %w[male female other], include_blank: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :date_of_birth %>
+    <%= form.date_field :date_of_birth %>
+  </div>
+
+  <div class="field">
+    <%= form.label :grade_type %>
+    <%= form.select :grade_type, Competitor::GRADE_TYPES, include_blank: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :grade_rank %>
+    <%= form.number_field :grade_rank, min: 1, max: 8 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :country %>
+    <%= form.text_field :country, required: true %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

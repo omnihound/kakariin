@@ -1,0 +1,20 @@
+<p><%= link_to "← #{@pool.name}", @pool %></p>
+
+<h1>Registrations — <%= @pool.name %></h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Seed</th>
+      <th>Competitor</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @registrations.each do |registration| %>
+      <tr>
+        <td><%= registration.seed || "—" %></td>
+        <td><%= registration.competitor.full_name %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

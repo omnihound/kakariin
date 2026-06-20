@@ -1,0 +1,37 @@
+hiroshi:
+  first_name: Hiroshi
+  last_name: Tanaka
+  country: AU
+  grade_rank: 3
+  grade_type: dan
+
+sarah:
+  first_name: Sarah
+  last_name: Mitchell
+  country: AU
+  grade_rank: 2
+  grade_type: dan
+
+james:
+  first_name: James
+  last_name: Wong
+  country: AU
+  grade_rank: 1
+  grade_type: dan
+
+yuki:
+  first_name: Yuki
+  last_name: Nakamura
+  country: AU
+  grade_rank: 1
+  grade_type: kyu
+
+tom:
+  first_name: Tom
+  last_name: Robertson
+  country: AU
+
+aiko:
+  first_name: Aiko
+  last_name: Yamamoto
+  country: AU

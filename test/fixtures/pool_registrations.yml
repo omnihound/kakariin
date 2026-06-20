@@ -1,0 +1,29 @@
+hiroshi_pool_a:
+  pool: pool_a
+  competitor: hiroshi
+  seed: 1
+
+james_pool_a:
+  pool: pool_a
+  competitor: james
+  seed: 2
+
+tom_pool_a:
+  pool: pool_a
+  competitor: tom
+  seed: 3
+
+sarah_pool_b:
+  pool: pool_b
+  competitor: sarah
+  seed: 1
+
+yuki_pool_b:
+  pool: pool_b
+  competitor: yuki
+  seed: 2
+
+aiko_pool_b:
+  pool: pool_b
+  competitor: aiko
+  seed: 3

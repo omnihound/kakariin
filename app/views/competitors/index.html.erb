@@ -1,0 +1,24 @@
+<h1>Competitors</h1>
+
+<%= link_to "New competitor", new_competitor_path %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Grade</th>
+      <th>Country</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @competitors.each do |competitor| %>
+      <tr>
+        <td><%= link_to competitor.full_name, competitor %></td>
+        <td><%= competitor.grade_label || "—" %></td>
+        <td><%= competitor.country %></td>
+        <td><%= link_to "Edit", edit_competitor_path(competitor) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

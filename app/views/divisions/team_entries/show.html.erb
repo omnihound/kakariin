@@ -1,0 +1,45 @@
+<p><%= link_to "← #{@team_entry.division.name}", @team_entry.division %></p>
+
+<h1><%= @team_entry.name %> <span class="tag"><%= @team_entry.status %></span></h1>
+
+<p class="muted">Seed <%= @team_entry.seed || "—" %></p>
+
+<p>
+  <%= link_to "Edit", edit_team_entry_path(@team_entry) %>
+  <%= button_to "Delete", @team_entry, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this team entry?" } } %>
+</p>
+
+<h2>Members</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Competitor</th>
+      <th>Grade</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @team_entry.team_memberships.includes(:competitor).each do |membership| %>
+      <tr>
+        <td><%= membership.competitor.full_name %></td>
+        <td><%= membership.competitor.grade_label || "—" %></td>
+        <td>
+          <%= button_to "Remove", team_entry_membership_path(@team_entry, membership), method: :delete, class: "inline" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h2>Add member</h2>
+
+<%= form_with url: team_entry_memberships_path(@team_entry) do |f| %>
+  <div class="field">
+    <%= f.label :competitor_id, "Competitor" %>
+    <%= f.collection_select :competitor_id, @available_competitors, :id, :full_name, include_blank: true %>
+  </div>
+  <div class="actions">
+    <%= f.submit "Add" %>
+  </div>
+<% end %>

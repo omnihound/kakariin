@@ -1,0 +1,30 @@
+<%= form_with model: team_entry, url: (team_entry.persisted? ? team_entry_path(team_entry) : division_team_entries_path(@division)) do |form| %>
+  <% if team_entry.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% team_entry.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :seed %>
+    <%= form.number_field :seed, min: 1 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.select :status, TeamEntry.statuses.keys %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

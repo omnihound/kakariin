@@ -1,0 +1,35 @@
+<%= form_with model: division, url: (division.persisted? ? division_path(division) : tournament_divisions_path(@tournament)) do |form| %>
+  <% if division.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% division.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :competition_type %>
+    <%= form.select :competition_type, Division.competition_types.keys %>
+  </div>
+
+  <div class="field">
+    <%= form.label :format %>
+    <%= form.select :format, Division.formats.keys %>
+  </div>
+
+  <div class="field">
+    <%= form.label :status %>
+    <%= form.select :status, Division.statuses.keys %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

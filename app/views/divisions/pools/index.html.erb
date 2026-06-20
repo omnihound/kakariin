@@ -1,0 +1,26 @@
+<p><%= link_to "← #{@division.name}", @division %></p>
+
+<h1>Pools — <%= @division.name %></h1>
+
+<%= link_to "New pool", new_division_pool_path(@division) %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Advancing</th>
+      <th>Competitors</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @pools.each do |pool| %>
+      <tr>
+        <td><%= link_to pool.name, pool %></td>
+        <td><%= pool.advancing_count %></td>
+        <td><%= pool.competitors.size %></td>
+        <td><span class="tag"><%= pool.status %></span></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

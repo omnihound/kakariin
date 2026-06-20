@@ -1,0 +1,40 @@
+individual_r1:
+  division: individual
+  round: 1
+  home: hiroshi (Competitor)
+  away: sarah (Competitor)
+  status: pending
+
+team_r1:
+  division: team
+  round: 1
+  home: melbourne (TeamEntry)
+  away: sydney (TeamEntry)
+  status: pending
+
+pool_a_r1_completed:
+  division: pools
+  pool: pool_a
+  round: 1
+  home: hiroshi (Competitor)
+  away: james (Competitor)
+  winner: hiroshi (Competitor)
+  status: completed
+
+pool_a_r2_completed:
+  division: pools
+  pool: pool_a
+  round: 2
+  home: tom (Competitor)
+  away: hiroshi (Competitor)
+  winner: hiroshi (Competitor)
+  status: completed
+
+pool_a_r3_completed:
+  division: pools
+  pool: pool_a
+  round: 3
+  home: james (Competitor)
+  away: tom (Competitor)
+  winner: tom (Competitor)
+  status: completed

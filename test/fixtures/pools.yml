@@ -1,0 +1,11 @@
+pool_a:
+  division: pools
+  name: Pool A
+  advancing_count: 2
+  status: pending
+
+pool_b:
+  division: pools
+  name: Pool B
+  advancing_count: 2
+  status: pending

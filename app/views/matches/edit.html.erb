@@ -1,0 +1,182 @@
+<p><%= link_to "← #{@match.division.name}", @match.division %></p>
+
+<h1>Score match — Round <%= @match.round %></h1>
+
+<%= form_with model: @match do |form| %>
+  <% if @match.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% @match.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <% if @match.division.individual? %>
+    <div class="field">
+      <label>Winner</label><br>
+      <label>
+        <input type="radio" name="match[winner_position]" value="home" <%= "checked" if @match.winner == @match.home %>>
+        <%= participant_name(@match.home) %>
+      </label>
+      <% if @match.away %>
+        <label>
+          <input type="radio" name="match[winner_position]" value="away" <%= "checked" if @match.winner == @match.away %>>
+          <%= participant_name(@match.away) %>
+        </label>
+      <% end %>
+    </div>
+
+    <p class="muted">Score (derived from ippons below): <strong><%= @match.home_score %> – <%= @match.away_score %></strong></p>
+
+    <div class="field">
+      <%= form.label :status %>
+      <%= form.select :status, Match.statuses.keys %>
+    </div>
+  <% else %>
+    <p class="muted">
+      Result (<%= @match.home_score %> – <%= @match.away_score %> bouts, <span class="tag"><%= @match.status %></span>)
+      is derived from the bouts below.
+    </p>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :mat_number %>
+    <%= form.number_field :mat_number, min: 1 %>
+  </div>
+
+  <div class="field">
+    <%= form.label :scheduled_at %>
+    <%= form.datetime_field :scheduled_at %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Save" %>
+  </div>
+<% end %>
+
+<% if @match.division.individual? %>
+  <h2>Ippons</h2>
+
+  <div class="field">
+    <strong><%= participant_name(@match.home) %></strong><br>
+    <% Ippon.techniques.keys.each do |technique| %>
+      <%= button_to technique, match_ippons_path(@match), params: { ippon: { competitor_id: @match.home.id, technique: technique } }, class: "inline" %>
+    <% end %>
+  </div>
+
+  <% if @match.away %>
+    <div class="field">
+      <strong><%= participant_name(@match.away) %></strong><br>
+      <% Ippon.techniques.keys.each do |technique| %>
+        <%= button_to technique, match_ippons_path(@match), params: { ippon: { competitor_id: @match.away.id, technique: technique } }, class: "inline" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Competitor</th>
+        <th>Technique</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @match.ippons.order(:created_at).each do |ippon| %>
+        <tr>
+          <td><%= ippon.competitor.full_name %></td>
+          <td><%= ippon.technique %></td>
+          <td><%= button_to "Remove", match_ippon_path(@match, ippon), method: :delete, class: "inline" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<% if @match.division.team? %>
+  <h2>Bouts</h2>
+
+  <% unless @match.completed? %>
+    <%= button_to "Finalize match", finalize_match_path(@match), method: :post, class: "inline", form: { data: { turbo_confirm: "Lock in the result from the bouts entered so far?" } } %>
+  <% end %>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Position</th>
+        <th><%= participant_name(@match.home) %></th>
+        <th><%= participant_name(@match.away) %></th>
+        <th>Ippons</th>
+        <th>Result</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @match.bouts.order(:position).each do |bout| %>
+        <tr>
+          <td><%= bout.position_label %></td>
+          <td><%= bout.home_competitor.full_name %><%= " (winner)" if bout.winner == bout.home_competitor %></td>
+          <td>
+            <% if bout.away_competitor %>
+              <%= bout.away_competitor.full_name %><%= " (winner)" if bout.winner == bout.away_competitor %>
+            <% else %>
+              forfeit
+            <% end %>
+          </td>
+          <td>
+            <strong><%= bout.home_score %> – <%= bout.away_score %></strong><br>
+            <% Ippon.techniques.keys.each do |technique| %>
+              <%= button_to technique.first.upcase, match_bout_ippons_path(@match, bout), params: { ippon: { competitor_id: bout.home_competitor_id, technique: technique } }, class: "inline", title: technique %>
+            <% end %>
+            <% if bout.away_competitor %>
+              |
+              <% Ippon.techniques.keys.each do |technique| %>
+                <%= button_to technique.first.upcase, match_bout_ippons_path(@match, bout), params: { ippon: { competitor_id: bout.away_competitor_id, technique: technique } }, class: "inline", title: technique %>
+              <% end %>
+            <% end %>
+            <br>
+            <% bout.ippons.order(:created_at).each do |ippon| %>
+              <span class="muted"><%= ippon.competitor.full_name %> (<%= ippon.technique %>)</span>
+              <%= button_to "×", match_bout_ippon_path(@match, bout, ippon), method: :delete, class: "inline" %><br>
+            <% end %>
+          </td>
+          <td>
+            <%= form_with url: match_bout_path(@match, bout), method: :patch, scope: :bout, class: "inline" do |f| %>
+              <label><input type="radio" name="bout[winner_position]" value="home" <%= "checked" if bout.winner == bout.home_competitor %>> H</label>
+              <% if bout.away_competitor %>
+                <label><input type="radio" name="bout[winner_position]" value="away" <%= "checked" if bout.winner == bout.away_competitor %>> A</label>
+              <% end %>
+              <%= f.select :status, Bout.statuses.keys, selected: bout.status %>
+              <%= f.submit "Save" %>
+            <% end %>
+          </td>
+          <td><span class="tag"><%= bout.status %></span></td>
+          <td><%= button_to "Remove", match_bout_path(@match, bout), method: :delete, class: "inline" %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <h3>Add bout</h3>
+
+  <%= form_with url: match_bouts_path(@match), scope: :bout do |f| %>
+    <div class="field">
+      <%= f.label :position, "Position (0 = senpo)" %>
+      <%= f.number_field :position, min: 0, value: @match.bouts.count %>
+    </div>
+    <div class="field">
+      <%= f.label :home_competitor_id, "#{participant_name(@match.home)} competitor" %>
+      <%= f.collection_select :home_competitor_id, @match.home.competitors, :id, :full_name, include_blank: true %>
+    </div>
+    <div class="field">
+      <%= f.label :away_competitor_id, "#{participant_name(@match.away)} competitor" %>
+      <%= f.collection_select :away_competitor_id, @match.away.competitors, :id, :full_name, include_blank: "Forfeit" %>
+    </div>
+    <div class="actions">
+      <%= f.submit "Add bout" %>
+    </div>
+  <% end %>
+<% end %>

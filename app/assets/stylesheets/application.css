@@ -1,0 +1,102 @@
+/*
+ * Minimal, framework-free styles — just enough to make tables and forms legible.
+ */
+
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+  color: #222;
+  line-height: 1.5;
+}
+
+nav {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #ccc;
+}
+
+nav a {
+  text-decoration: none;
+  color: #222;
+  font-weight: 600;
+}
+
+h1, h2, h3 {
+  margin-top: 1.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid #ddd;
+}
+
+form.inline {
+  display: inline;
+}
+
+.field {
+  margin-bottom: 0.75rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.actions {
+  margin-top: 1rem;
+}
+
+button, input[type="submit"] {
+  cursor: pointer;
+  padding: 0.4rem 0.8rem;
+}
+
+.flash-notice {
+  color: #0a6b2d;
+  background: #e6f6ea;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.flash-alert {
+  color: #9b1c1c;
+  background: #fbe9e9;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.error-messages {
+  color: #9b1c1c;
+  background: #fbe9e9;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.muted {
+  color: #777;
+  font-size: 0.9em;
+}
+
+.tag {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 3px;
+  background: #eee;
+  font-size: 0.85em;
+}

@@ -1,0 +1,26 @@
+<p><%= link_to "← #{@division.name}", @division %></p>
+
+<h1>Team entries — <%= @division.name %></h1>
+
+<%= link_to "New team entry", new_division_team_entry_path(@division) %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Seed</th>
+      <th>Team</th>
+      <th>Members</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @team_entries.each do |team_entry| %>
+      <tr>
+        <td><%= team_entry.seed || "—" %></td>
+        <td><%= link_to team_entry.name, team_entry %></td>
+        <td><%= team_entry.competitors.map(&:full_name).join(", ") %></td>
+        <td><span class="tag"><%= team_entry.status %></span></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

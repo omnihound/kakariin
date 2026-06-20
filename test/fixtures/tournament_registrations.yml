@@ -1,0 +1,23 @@
+hiroshi_individual:
+  competitor: hiroshi
+  division: individual
+  seed: 1
+  status: confirmed
+
+sarah_individual:
+  competitor: sarah
+  division: individual
+  seed: 2
+  status: confirmed
+
+james_individual:
+  competitor: james
+  division: individual
+  seed: 3
+  status: confirmed
+
+yuki_individual:
+  competitor: yuki
+  division: individual
+  seed: 4
+  status: confirmed

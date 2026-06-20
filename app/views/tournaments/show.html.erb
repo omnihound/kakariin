@@ -1,0 +1,38 @@
+<h1><%= @tournament.name %> <span class="tag"><%= @tournament.status %></span></h1>
+
+<p class="muted">
+  <%= @tournament.location %>
+  · <%= @tournament.start_date %><% if @tournament.end_date %> – <%= @tournament.end_date %><% end %>
+</p>
+
+<p><%= @tournament.description %></p>
+
+<p>
+  <%= link_to "Edit", edit_tournament_path(@tournament) %>
+  <%= button_to "Delete", @tournament, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this tournament and all its divisions?" } } %>
+</p>
+
+<h2>Divisions</h2>
+
+<%= link_to "New division", new_tournament_division_path(@tournament) %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Type</th>
+      <th>Format</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @divisions.each do |division| %>
+      <tr>
+        <td><%= link_to division.name, division %></td>
+        <td><%= division.competition_type %></td>
+        <td><%= division.format %></td>
+        <td><span class="tag"><%= division.status %></span></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

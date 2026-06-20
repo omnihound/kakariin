@@ -1,0 +1,20 @@
+individual:
+  tournament: states
+  name: Open Individual
+  competition_type: individual
+  format: single_elimination
+  status: pending
+
+team:
+  tournament: states
+  name: Open Team
+  competition_type: team
+  format: single_elimination
+  status: pending
+
+pools:
+  tournament: states
+  name: Open Pools
+  competition_type: individual
+  format: pools_then_elimination
+  status: pending

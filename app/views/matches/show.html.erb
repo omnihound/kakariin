@@ -1,0 +1,52 @@
+<p><%= link_to "← #{@match.division.name}", @match.division %></p>
+
+<h1>Round <%= @match.round %> <span class="tag"><%= @match.status %></span></h1>
+
+<table>
+  <tr>
+    <th>Home</th>
+    <td><%= participant_name(@match.home) %><%= " (winner)" if @match.winner == @match.home %></td>
+  </tr>
+  <tr>
+    <th>Away</th>
+    <td><%= participant_name(@match.away) %><%= " (winner)" if @match.away && @match.winner == @match.away %></td>
+  </tr>
+  <tr>
+    <th>Score</th>
+    <td><%= @match.home_score %> – <%= @match.away_score %></td>
+  </tr>
+  <% if @match.mat_number %>
+    <tr><th>Mat</th><td><%= @match.mat_number %></td></tr>
+  <% end %>
+  <% if @match.scheduled_at %>
+    <tr><th>Scheduled</th><td><%= @match.scheduled_at %></td></tr>
+  <% end %>
+</table>
+
+<% if @match.division.team? && @match.bouts.any? %>
+  <h2>Bouts</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Position</th>
+        <th><%= participant_name(@match.home) %></th>
+        <th><%= participant_name(@match.away) %></th>
+        <th>Score</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @match.bouts.order(:position).each do |bout| %>
+        <tr>
+          <td><%= bout.position_label %></td>
+          <td><%= bout.home_competitor.full_name %><%= " (winner)" if bout.winner == bout.home_competitor %></td>
+          <td><%= bout.away_competitor ? bout.away_competitor.full_name : "forfeit" %><%= " (winner)" if bout.away_competitor && bout.winner == bout.away_competitor %></td>
+          <td><%= bout.home_score %> – <%= bout.away_score %></td>
+          <td><span class="tag"><%= bout.status %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<%= link_to "Score this match", edit_match_path(@match) unless @match.bye? %>

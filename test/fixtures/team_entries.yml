@@ -1,0 +1,11 @@
+melbourne:
+  division: team
+  name: Melbourne Kendo Club
+  seed: 1
+  status: confirmed
+
+sydney:
+  division: team
+  name: Sydney Kendo Renmei
+  seed: 2
+  status: confirmed

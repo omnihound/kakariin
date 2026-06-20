@@ -1,0 +1,104 @@
+<p><%= link_to "← #{@pool.division.name}", @pool.division %></p>
+
+<h1><%= @pool.name %> <span class="tag"><%= @pool.status %></span></h1>
+
+<p class="muted">Top <%= @pool.advancing_count %> advance to the playoff bracket</p>
+
+<p>
+  <%= link_to "Edit", edit_pool_path(@pool) %>
+  <%= button_to "Delete", @pool, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this pool and its matches?" } } %>
+</p>
+
+<% if @pool.pool_matches.where(status: "completed").any? %>
+  <h2>Standings</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Competitor</th>
+        <th>Qualifies?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @pool.standings.each_with_index do |competitor, i| %>
+        <tr>
+          <td><%= i + 1 %></td>
+          <td><%= competitor.full_name %></td>
+          <td><%= "Yes" if i < @pool.advancing_count %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
+
+<h2>Registrations</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Seed</th>
+      <th>Competitor</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @registrations.each do |registration| %>
+      <tr>
+        <td>
+          <%= form_with model: registration, url: pool_registration_path(@pool, registration), method: :patch, class: "inline" do |f| %>
+            <%= f.number_field :seed, value: registration.seed, size: 3 %>
+            <%= f.submit "Update" %>
+          <% end %>
+        </td>
+        <td><%= registration.competitor.full_name %></td>
+        <td>
+          <%= button_to "Remove", pool_registration_path(@pool, registration), method: :delete, class: "inline" %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<h3>Add competitor</h3>
+
+<%= form_with url: pool_registrations_path(@pool), scope: :pool_registration do |f| %>
+  <div class="field">
+    <%= f.label :competitor_id, "Competitor" %>
+    <%= f.collection_select :competitor_id, @available_competitors, :id, :full_name, include_blank: true %>
+  </div>
+  <div class="field">
+    <%= f.label :seed %>
+    <%= f.number_field :seed, min: 1 %>
+  </div>
+  <div class="actions">
+    <%= f.submit "Register" %>
+  </div>
+<% end %>
+
+<h2>Matches</h2>
+
+<% @pool.pool_matches.order(:round, :id).group_by(&:round).each do |round, matches| %>
+  <h3>Round <%= round %></h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Home</th>
+        <th>Away</th>
+        <th>Score</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% matches.each do |match| %>
+        <tr>
+          <td><%= participant_name(match.home) %></td>
+          <td><%= participant_name(match.away) %></td>
+          <td><%= match.home_score %> – <%= match.away_score %></td>
+          <td><span class="tag"><%= match.status %></span></td>
+          <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
