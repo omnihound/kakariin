@@ -11,24 +11,56 @@
 
 <% if @pool.pool_matches.where(status: "completed").any? %>
   <h2>Standings</h2>
-  <table>
+  <p class="muted">Ranked by wins, ippon difference as tiebreak.</p>
+
+  <% standings = @pool.standings %>
+  <table class="cross-table">
     <thead>
       <tr>
+        <th></th>
+        <% standings.each do |competitor| %>
+          <th><%= competitor.full_name %></th>
+        <% end %>
+        <th>W–L</th>
+        <th>Ipp±</th>
         <th>#</th>
-        <th>Competitor</th>
-        <th>Qualifies?</th>
       </tr>
     </thead>
     <tbody>
-      <% @pool.standings.each_with_index do |competitor, i| %>
-        <tr>
+      <% standings.each_with_index do |row_competitor, i| %>
+        <tr class="<%= "advances" if i < @pool.advancing_count %>">
+          <th><%= row_competitor.full_name %></th>
+          <% standings.each do |col_competitor| %>
+            <% if row_competitor == col_competitor %>
+              <td class="diagonal"></td>
+            <% else %>
+              <% match = @pool.match_between(row_competitor, col_competitor) %>
+              <% if match.nil? || !match.completed? %>
+                <td class="muted">–</td>
+              <% else %>
+                <% row_is_home = match.home == row_competitor %>
+                <% row_score = row_is_home ? match.home_score : match.away_score %>
+                <% col_score = row_is_home ? match.away_score : match.home_score %>
+                <td>
+                  <strong><%= row_score %>–<%= col_score %></strong><br>
+                  <% match.ippons.select { |ip| ip.competitor_id == row_competitor.id }.each do |ippon| %>
+                    <span class="mark mark-<%= ippon.technique %>"><%= technique_mark(ippon.technique) %></span>
+                  <% end %>
+                </td>
+              <% end %>
+            <% end %>
+          <% end %>
+          <% wins = @pool.pool_matches.count { |m| m.winner == row_competitor } %>
+          <% losses = @pool.pool_matches.count { |m| (m.home == row_competitor || m.away == row_competitor) && m.completed? && m.winner != row_competitor } %>
+          <td><%= wins %>–<%= losses %></td>
+          <% diff = @pool.ippon_diff(row_competitor) %>
+          <td><%= diff > 0 ? "+#{diff}" : diff %></td>
           <td><%= i + 1 %></td>
-          <td><%= competitor.full_name %></td>
-          <td><%= "Yes" if i < @pool.advancing_count %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
+  <p class="muted">Highlighted rows advance to the bracket (top <%= @pool.advancing_count %>).</p>
 <% end %>
 
 <h2>Registrations</h2>

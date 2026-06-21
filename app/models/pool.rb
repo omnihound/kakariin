@@ -9,11 +9,13 @@ class Pool < ApplicationRecord
   validates :name, presence: true, uniqueness: { scope: :division_id }
   validates :advancing_count, numericality: { only_integer: true, greater_than: 0 }
 
-  # Competitors ranked by wins within this pool, seed as tiebreaker.
+  # Competitors ranked by wins within this pool, ippon difference as
+  # tiebreaker, then seed.
   def standings
+    matches = matches_array
     pool_registrations.includes(:competitor)
                       .order(Arel.sql("seed ASC NULLS LAST"))
-                      .sort_by.with_index { |pr, i| [-win_count(pr.competitor), i] }
+                      .sort_by.with_index { |pr, i| [-win_count(pr.competitor, matches), -ippon_diff(pr.competitor, matches), i] }
                       .map(&:competitor)
   end
 
@@ -30,9 +32,30 @@ class Pool < ApplicationRecord
     division.matches.where(pool: self)
   end
 
+  # The match between two competitors within this pool, for cross-table cells.
+  def match_between(a, b)
+    matches_array.detect { |m| (m.home == a && m.away == b) || (m.home == b && m.away == a) }
+  end
+
+  def ippon_diff(competitor, matches = matches_array)
+    ippons_for(competitor, matches) - ippons_against(competitor, matches)
+  end
+
   private
 
-  def win_count(competitor)
-    pool_matches.count { |m| m.winner == competitor }
+  def matches_array
+    @matches_array ||= pool_matches.to_a
+  end
+
+  def win_count(competitor, matches)
+    matches.count { |m| m.winner == competitor }
+  end
+
+  def ippons_for(competitor, matches)
+    matches.sum { |m| m.home == competitor ? m.home_score : (m.away == competitor ? m.away_score : 0) }
+  end
+
+  def ippons_against(competitor, matches)
+    matches.sum { |m| m.home == competitor ? m.away_score : (m.away == competitor ? m.home_score : 0) }
   end
 end

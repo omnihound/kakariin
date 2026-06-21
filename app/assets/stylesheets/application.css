@@ -100,3 +100,180 @@ button, input[type="submit"] {
   background: #eee;
   font-size: 0.85em;
 }
+
+.center {
+  text-align: center;
+}
+
+/* Aka/Shiro scoreboard */
+
+.scoreboard {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.scoreboard .side {
+  flex: 1;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.scoreboard .side.aka {
+  border-color: #c0392b;
+}
+
+.scoreboard .side.shiro {
+  border-color: #999;
+  background: #fafafa;
+}
+
+.scoreboard .side-tag {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: 0.8em;
+}
+
+.scoreboard .side.aka .side-tag {
+  color: #c0392b;
+}
+
+.scoreboard .side.shiro .side-tag {
+  color: #555;
+}
+
+.scoreboard .competitor-name {
+  font-weight: 600;
+  margin: 0.25rem 0;
+}
+
+.scoreboard .tally {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.scoreboard .vs {
+  align-self: center;
+  font-size: 1.5rem;
+  color: #999;
+  white-space: nowrap;
+}
+
+.scoreboard .marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+  min-height: 1.6em;
+}
+
+.result-line {
+  text-align: center;
+  font-size: 1.1em;
+}
+
+.mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  background: #eee;
+  border-radius: 12px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.85em;
+  font-family: ui-monospace, monospace;
+}
+
+.mark-men { background: #fde2e1; }
+.mark-kote { background: #e2ecfd; }
+.mark-dou { background: #e2fde6; }
+.mark-tsuki { background: #fdf3e2; }
+.mark-hansoku { background: #eee; }
+
+.mark-remove {
+  display: inline;
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 0 0.1rem;
+  font-size: 1em;
+}
+
+/* one-tap ippon entry — same markup and styling everywhere a competitor can be scored */
+
+.ippon-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+.ippon-buttons form {
+  display: inline;
+}
+
+.ippon-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ippon-btn:hover {
+  background: #f0f0f0;
+}
+
+/* Team match — bout ladder */
+
+.team-scoreboard .tally {
+  font-size: 2rem;
+}
+
+.bout-ladder .marks {
+  margin-top: 0.25rem;
+}
+
+.bout-ladder .ippon-buttons {
+  justify-content: flex-start;
+}
+
+.bout-ladder .bout-result {
+  text-align: center;
+}
+
+.bout-winner-row td {
+  border-bottom: 2px solid #ddd;
+  padding-top: 0;
+}
+
+/* Pool cross-table */
+
+.cross-table {
+  font-size: 0.9em;
+}
+
+.cross-table th,
+.cross-table td {
+  text-align: center;
+}
+
+.cross-table .diagonal {
+  background: #f3f3f3;
+}
+
+.cross-table tr.advances {
+  background: #eafbef;
+}
+
+.cross-table .mark {
+  font-size: 0.8em;
+}
