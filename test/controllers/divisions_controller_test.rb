@@ -7,9 +7,46 @@ class DivisionsControllerTest < ActionDispatch::IntegrationTest
     get division_path(divisions(:individual))
 
     assert_response :success
-    assert_select ".bracket-header", text: "Round 1"
+    # individual_r1 fixture is the only match in the division (a 1-match,
+    # 2-entrant bracket), so its round is also the final.
+    assert_select ".bracket-header", text: "Final"
     assert_select ".bracket-match"
     assert_select ".bracket-match.winner-locked", count: 0
+  end
+
+  test "rounds not generated yet render as ghost cells with placeholders" do
+    division = Division.create!(tournament: tournaments(:states), name: "Ghost Division",
+                                  competition_type: "individual", format: "single_elimination")
+    [ :hiroshi, :sarah, :james, :yuki ].each_with_index do |key, i|
+      TournamentRegistration.create!(competitor: competitors(key), division: division, seed: i + 1, status: "confirmed")
+    end
+    TournamentSystem::SingleElimination.generate(TournamentDriver.new(division))
+
+    get division_path(division)
+
+    assert_response :success
+    assert_select ".bracket-header", text: "Semifinal"
+    assert_select ".bracket-header", text: "Final"
+    assert_select ".bracket-match-ghost .bracket-placeholder", text: "Winner of Semifinal 1"
+    assert_select ".bracket-match-ghost .bracket-placeholder", text: "Winner of Semifinal 2"
+  end
+
+  test "a ghost cell shows the real winner once its source match is decided" do
+    division = Division.create!(tournament: tournaments(:states), name: "Ghost Decided Division",
+                                  competition_type: "individual", format: "single_elimination")
+    [ :hiroshi, :sarah, :james, :yuki ].each_with_index do |key, i|
+      TournamentRegistration.create!(competitor: competitors(key), division: division, seed: i + 1, status: "confirmed")
+    end
+    TournamentSystem::SingleElimination.generate(TournamentDriver.new(division))
+    first_match = division.matches.order(:id).first
+    first_match.update!(winner: first_match.home, status: "completed")
+
+    get division_path(division)
+
+    assert_response :success
+    assert_select ".bracket-match-ghost .bracket-slot-name", text: /#{first_match.home.full_name}/
+    assert_select ".bracket-match-ghost .bracket-source-note", text: "won Semifinal 1"
+    assert_select ".bracket-match-ghost .bracket-placeholder", text: "Winner of Semifinal 2"
   end
 
   test "seeded registrations show a seed badge on their bracket slot" do

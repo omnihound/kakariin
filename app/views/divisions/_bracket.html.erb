@@ -1,19 +1,29 @@
 <%
   rounds = matches.group_by(&:round).sort_by { |round, _| round }
   leaf_count = rounds.first&.last&.size || 0
-  columns = "repeat(#{rounds.size}, 14rem)"
+  total_rounds = leaf_count > 0 ? Math.log2(leaf_count).to_i + 1 : rounds.size
+  columns = "repeat(#{total_rounds}, 14rem)"
   seed_lookup = division.individual? ? division.tournament_registrations.pluck(:competitor_id, :seed).to_h : {}
+
+  matches_count_for = ->(round_index) { round_index < rounds.size ? rounds[round_index].last.size : leaf_count / (2**round_index) }
+  # The only round that could have decided a ghost slot is the one right
+  # before it — anything earlier than that already fed into this round's
+  # own real-or-ghost state, so there's nothing further back to chase.
+  source_match_for = lambda do |source_round_index, source_match_index|
+    next nil if source_round_index < 0 || source_round_index >= rounds.size
+    rounds[source_round_index].last[source_match_index]
+  end
 %>
 <div id="<%= dom_id(division, :bracket) %>" class="bracket">
   <div class="bracket-headers" style="grid-template-columns: <%= columns %>;">
-    <% rounds.each do |round, _| %>
-      <div class="bracket-header">Round <%= round %></div>
+    <% (0...total_rounds).each do |round_index| %>
+      <div class="bracket-header"><%= bracket_round_name(matches_count_for.call(round_index)) %></div>
     <% end %>
   </div>
   <div class="bracket-grid" style="grid-template-columns: <%= columns %>;">
     <% rounds.each_with_index do |(round, round_matches), round_index| %>
       <% span = leaf_count / round_matches.size %>
-      <% is_final_round = round_index == rounds.size - 1 %>
+      <% is_final_round = round_index == total_rounds - 1 %>
       <% round_matches.each_with_index do |match, i| %>
         <% row_start = i * span + 1 %>
         <% elbow_class = is_final_round ? nil : (i.even? ? "elbow-down" : "elbow-up") %>
@@ -51,6 +61,39 @@
               <% end %>
             </div>
             <%= link_to "Score", edit_match_path(match), class: "bracket-score-link" unless match.bye? %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <% (rounds.size...total_rounds).each do |round_index| %>
+      <% matches_count = matches_count_for.call(round_index) %>
+      <% span = leaf_count / matches_count %>
+      <% is_final_round = round_index == total_rounds - 1 %>
+      <% prev_round_name = bracket_round_name(matches_count_for.call(round_index - 1)) %>
+      <% (0...matches_count).each do |i| %>
+        <% row_start = i * span + 1 %>
+        <% elbow_class = is_final_round ? nil : (i.even? ? "elbow-down" : "elbow-up") %>
+        <div class="bracket-cell bracket-ghost bracket-entry <%= elbow_class %>"
+             style="grid-column: <%= round_index + 1 %>; grid-row: <%= row_start %> / span <%= span %>;">
+          <div class="bracket-match bracket-match-ghost">
+            <% [ 2 * i, 2 * i + 1 ].each do |source_index| %>
+              <% source_match = source_match_for.call(round_index - 1, source_index) %>
+              <% winner = source_match&.winner %>
+              <div class="bracket-slot">
+                <% if winner %>
+                  <span class="bracket-slot-name">
+                    <% if (seed = participant_seed(winner, seed_lookup)) %>
+                      <span class="bracket-seed"><%= seed %></span>
+                    <% end %>
+                    <%= participant_name(winner) %>
+                  </span>
+                  <span class="bracket-source-note">won <%= prev_round_name %> <%= source_index + 1 %></span>
+                <% else %>
+                  <span class="bracket-placeholder">Winner of <%= prev_round_name %> <%= source_index + 1 %></span>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </div>
       <% end %>

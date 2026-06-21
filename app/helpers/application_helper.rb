@@ -14,6 +14,17 @@ module ApplicationHelper
     participant.is_a?(Competitor) ? seed_lookup[participant.id] : participant.seed
   end
 
+  # Standard knockout terminology, derived from how many matches are in
+  # the round — works the same whether the round is real or projected.
+  def bracket_round_name(matches_count)
+    case matches_count
+    when 1 then "Final"
+    when 2 then "Semifinal"
+    when 4 then "Quarterfinal"
+    else "Round of #{matches_count * 2}"
+    end
+  end
+
   TECHNIQUE_MARKS = { "men" => "M", "kote" => "K", "dou" => "D", "tsuki" => "T", "hansoku" => "H" }.freeze
 
   def technique_mark(technique)

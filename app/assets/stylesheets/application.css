@@ -433,3 +433,37 @@ button, input[type="submit"] {
   font-size: 0.85em;
   text-align: center;
 }
+
+/* Ghost cells — projected rounds that haven't been generated yet, shown so
+   the full bracket shape is visible immediately rather than trailing off
+   after the last real round. */
+
+.bracket-match-ghost {
+  background: #fafafa;
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.bracket-placeholder {
+  font-style: italic;
+  color: #999;
+}
+
+.bracket-source-note {
+  display: block;
+  font-size: 0.75em;
+  color: #999;
+}
+
+.bracket-cell.bracket-ghost.elbow-down::after,
+.bracket-cell.bracket-ghost.elbow-up::after {
+  border-style: dashed;
+}
+
+/* The real .bracket-entry::before is unconditionally green (a real round
+   only exists once its predecessors are complete), but a ghost round isn't
+   real yet — override back to the muted/dashed treatment. */
+.bracket-cell.bracket-ghost.bracket-entry::before {
+  border-style: dashed;
+  border-color: #ccc;
+}
