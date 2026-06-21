@@ -19,6 +19,10 @@ competitor_attrs = [
   { first_name: "Kenji",   last_name: "Suzuki",    gender: "male",   grade_rank: 2, grade_type: "dan", country: "AU" },
   { first_name: "Lucy",    last_name: "Anderson",  gender: "female", grade_rank: 1, grade_type: "kyu", country: "AU" },
   { first_name: "Mark",    last_name: "Patel",     gender: "male",   grade_rank: 1, grade_type: "dan", country: "AU" },
+  { first_name: "Olivia",  last_name: "Walker",    gender: "female", grade_rank: 1, grade_type: "dan", country: "AU" },
+  { first_name: "Ryo",     last_name: "Saito",     gender: "male",   grade_rank: 2, grade_type: "dan", country: "AU" },
+  { first_name: "Grace",   last_name: "Liu",       gender: "female", grade_rank: 1, grade_type: "kyu", country: "AU" },
+  { first_name: "Daniel",  last_name: "Nguyen",    gender: "male",   grade_rank: 1, grade_type: "kyu", country: "AU" },
 ]
 
 competitors = competitor_attrs.map do |attrs|
@@ -52,6 +56,11 @@ team_div = Division.find_or_create_by!(tournament: tournament, name: "Open Team"
   d.format           = "single_elimination"
 end
 
+championship_div = Division.find_or_create_by!(tournament: tournament, name: "Championship Individual") do |d|
+  d.competition_type = "individual"
+  d.format           = "single_elimination"
+end
+
 puts "  #{Division.count} divisions"
 
 puts "== Individual registrations"
@@ -65,6 +74,19 @@ competitors.first(8).each_with_index do |competitor, i|
 end
 
 puts "  #{individual_div.tournament_registrations.confirmed.count} confirmed"
+
+puts "== Championship registrations"
+
+# All 16 competitors, seeded by grade (highest dan first) then kyu — a full
+# 16-draw bracket (4 rounds), useful for exercising the bracket view at scale.
+competitors.first(16).each_with_index do |competitor, i|
+  TournamentRegistration.find_or_create_by!(competitor: competitor, division: championship_div) do |r|
+    r.seed   = i + 1
+    r.status = "confirmed"
+  end
+end
+
+puts "  #{championship_div.tournament_registrations.confirmed.count} confirmed"
 
 puts "== Team entries"
 
@@ -115,6 +137,37 @@ if individual_div.matches.none?
   end
 else
   puts "  Individual bracket already generated (#{individual_div.matches.count} matches), skipping"
+end
+
+if championship_div.matches.none?
+  puts "  Playing out the 16-draw bracket (lower seed wins each match)..."
+  seed_for = ->(c) { championship_div.tournament_registrations.find_by(competitor: c).seed }
+  total_rounds = TournamentSystem::SingleElimination.total_rounds(TournamentDriver.new(championship_div))
+
+  total_rounds.times do
+    # TournamentDriver#matches caches @division.matches.to_a per instance,
+    # but reusing championship_div across iterations means Rails' own
+    # association cache on it goes stale once match records are updated
+    # outside the cached array (the .where(...).update! below touches
+    # separate object instances) — reset it so each round's driver sees the
+    # real winners, not a stale "still pending" snapshot.
+    championship_div.association(:matches).reset
+    TournamentSystem::SingleElimination.generate(TournamentDriver.new(championship_div))
+    current_round = championship_div.matches.maximum(:round)
+    championship_div.matches.where(round: current_round, status: "pending").each do |m|
+      winner = [ m.home, m.away ].compact.min_by(&seed_for)
+      m.update!(winner: winner, status: "completed")
+    end
+  end
+
+  puts "  Resolved to the final:"
+  championship_div.matches.order(:round, :id).each do |m|
+    away_label = m.away ? m.away.full_name : "BYE"
+    puts "    Round #{m.round}: #{m.home.full_name} vs #{away_label} -> #{m.winner.full_name}"
+  end
+  puts "  Champion: #{championship_div.matches.order(:round).last.winner.full_name}"
+else
+  puts "  Championship bracket already generated (#{championship_div.matches.count} matches), skipping"
 end
 
 if team_div.matches.none?
