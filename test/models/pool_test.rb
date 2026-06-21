@@ -30,4 +30,31 @@ class PoolTest < ActiveSupport::TestCase
   test "all_matches_complete? is false for a pool with no matches yet" do
     assert_not pools(:pool_b).all_matches_complete?
   end
+
+  test "generate_for_division! splits confirmed registrations into pools by snake seed" do
+    division = Division.create!(tournament: tournaments(:states), name: "Fresh Pools",
+                                  competition_type: "individual", format: "pools_then_elimination")
+    [ competitors(:hiroshi), competitors(:sarah), competitors(:james), competitors(:yuki) ].each_with_index do |c, i|
+      division.tournament_registrations.create!(competitor: c, seed: i + 1, status: "confirmed")
+    end
+
+    pools = Pool.generate_for_division!(division, pool_count: 2, advancing_count: 1)
+
+    assert_equal [ "Pool A", "Pool B" ], pools.map(&:name)
+    assert_equal [ competitors(:hiroshi), competitors(:yuki) ], pools[0].pool_registrations.order(:seed).map(&:competitor)
+    assert_equal [ competitors(:sarah), competitors(:james) ], pools[1].pool_registrations.order(:seed).map(&:competitor)
+  end
+
+  test "generate_for_division! refuses to run twice" do
+    division = divisions(:pools)
+
+    assert_raises(ArgumentError) { Pool.generate_for_division!(division, pool_count: 2, advancing_count: 1) }
+  end
+
+  test "generate_for_division! refuses when no confirmed registrations exist" do
+    division = Division.create!(tournament: tournaments(:states), name: "Empty Pools",
+                                  competition_type: "individual", format: "pools_then_elimination")
+
+    assert_raises(ArgumentError) { Pool.generate_for_division!(division, pool_count: 2, advancing_count: 1) }
+  end
 end

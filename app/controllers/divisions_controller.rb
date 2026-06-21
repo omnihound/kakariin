@@ -9,6 +9,9 @@ class DivisionsController < ApplicationController
       # mixing them with playoff rounds under one heading is misleading.
       @pools = @division.pools.includes(competitors: {}).order(:name)
       @matches = @division.matches.where(pool_id: nil).order(:round, :id)
+      @registrations = @division.tournament_registrations
+                                .includes(:competitor)
+                                .order(Arel.sql("seed ASC NULLS LAST"))
     else
       @matches = @division.matches.order(:round, :id)
       if @division.individual?

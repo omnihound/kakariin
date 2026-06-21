@@ -118,6 +118,7 @@
         <th>Away</th>
         <th>Score</th>
         <th>Status</th>
+        <th>Winner</th>
         <th></th>
       </tr>
     </thead>
@@ -128,6 +129,13 @@
           <td><%= participant_name(match.away) %></td>
           <td><%= match.home_score %> – <%= match.away_score %></td>
           <td><span class="tag"><%= match.status %></span></td>
+          <td>
+            <% if match.winner %>
+              <strong><%= participant_name(match.winner) %></strong>
+            <% else %>
+              <span class="muted">—</span>
+            <% end %>
+          </td>
           <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
         </tr>
       <% end %>

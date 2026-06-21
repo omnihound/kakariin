@@ -13,7 +13,9 @@ Rails.application.routes.draw do
         resource :bracket, only: :create, controller: "bracket"
         resources :registrations, only: [:index, :create, :update, :destroy], shallow: false
         resources :team_entries, shallow: true
-        resources :pools, shallow: true
+        resources :pools, shallow: true do
+          collection { post :generate }
+        end
       end
     end
   end

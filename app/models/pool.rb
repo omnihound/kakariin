@@ -9,6 +9,34 @@ class Pool < ApplicationRecord
   validates :name, presence: true, uniqueness: { scope: :division_id }
   validates :advancing_count, numericality: { only_integer: true, greater_than: 0 }
 
+  # Splits a division's confirmed registrations into pool_count pools using
+  # snake seeding (seed 1, 2, 3... go one per pool, then reverse direction for
+  # the next tier) so pool strength stays balanced. Refuses to run if the
+  # division already has pools, since re-running would create duplicates
+  # rather than reassigning existing ones.
+  def self.generate_for_division!(division, pool_count:, advancing_count:)
+    raise ArgumentError, "division already has pools" if division.pools.any?
+
+    registrations = division.tournament_registrations.confirmed
+                            .order(Arel.sql("seed ASC NULLS LAST")).to_a
+    raise ArgumentError, "no confirmed registrations to assign" if registrations.empty?
+    raise ArgumentError, "need at least 1 pool" if pool_count < 1
+
+    transaction do
+      pools = Array.new(pool_count) do |i|
+        division.pools.create!(name: "Pool #{('A'.ord + i).chr}", advancing_count: advancing_count)
+      end
+
+      registrations.each_with_index do |registration, index|
+        tier, offset = index.divmod(pool_count)
+        pool_index = tier.even? ? offset : (pool_count - 1 - offset)
+        pools[pool_index].pool_registrations.create!(competitor: registration.competitor, seed: index + 1)
+      end
+
+      pools
+    end
+  end
+
   # Competitors ranked by wins within this pool, ippon difference as
   # tiebreaker, then seed.
   def standings

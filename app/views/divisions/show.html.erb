@@ -12,29 +12,59 @@
 </p>
 
 <% if @division.pools_then_elimination? %>
-  <h2>Pools</h2>
-  <%= link_to "New pool", new_division_pool_path(@division) %>
+  <h2>Registrations</h2>
+  <%= link_to "Manage registrations", division_registrations_path(@division) %>
+  <p class="muted"><%= @registrations.size %> competitor(s) registered · <%= @registrations.confirmed.size %> confirmed</p>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Advancing</th>
-        <th>Competitors</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% @pools.each do |pool| %>
+  <h2>Pools</h2>
+
+  <% if @pools.empty? %>
+    <p class="muted">Register competitors above, then generate pools to split them into round-robin groups.</p>
+    <%= form_with url: generate_division_pools_path(@division), method: :post do |f| %>
+      <div class="field">
+        <%= f.label :pool_count, "Number of pools" %>
+        <%= f.number_field :pool_count, min: 1, value: 2 %>
+      </div>
+      <div class="field">
+        <%= f.label :advancing_count, "Qualifiers per pool" %>
+        <%= f.number_field :advancing_count, min: 1, value: 2 %>
+      </div>
+      <div class="actions">
+        <%= f.submit "Generate pools" %>
+      </div>
+    <% end %>
+  <% else %>
+    <p><%= link_to "New pool", new_division_pool_path(@division) %></p>
+
+    <table>
+      <thead>
         <tr>
-          <td><%= link_to pool.name, pool %></td>
-          <td><%= pool.advancing_count %></td>
-          <td><%= pool.competitors.size %></td>
-          <td><span class="tag"><%= pool.status %></span></td>
+          <th>Name</th>
+          <th>Advancing</th>
+          <th>Competitors</th>
+          <th>Status</th>
+          <th>Qualifiers</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% @pools.each do |pool| %>
+          <tr>
+            <td><%= link_to pool.name, pool %></td>
+            <td><%= pool.advancing_count %></td>
+            <td><%= pool.competitors.size %></td>
+            <td><span class="tag"><%= pool.status %></span></td>
+            <td>
+              <% if pool.all_matches_complete? %>
+                <%= pool.qualifiers.map(&:full_name).join(", ") %>
+              <% else %>
+                <span class="muted">TBD</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 
 <% elsif @division.individual? %>
   <h2>Registrations</h2>
@@ -102,6 +132,7 @@
         <th>Away</th>
         <th>Score</th>
         <th>Status</th>
+        <th>Winner</th>
         <th></th>
       </tr>
     </thead>
@@ -112,6 +143,13 @@
           <td><%= participant_name(match.away) %></td>
           <td><%= match.home_score %> – <%= match.away_score %></td>
           <td><span class="tag"><%= match.status %></span></td>
+          <td>
+            <% if match.winner %>
+              <strong><%= participant_name(match.winner) %></strong>
+            <% else %>
+              <span class="muted">—</span>
+            <% end %>
+          </td>
           <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
         </tr>
       <% end %>

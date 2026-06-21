@@ -1,10 +1,17 @@
 module Divisions
   class PoolsController < ApplicationController
-    before_action :set_division, only: [:index, :new, :create]
+    before_action :set_division, only: [:index, :new, :create, :generate]
     before_action :set_pool, only: [:show, :edit, :update, :destroy]
 
     def index
       @pools = @division.pools.includes(:competitors).order(:name)
+    end
+
+    def generate
+      Pool.generate_for_division!(@division, pool_count: params[:pool_count].to_i, advancing_count: params[:advancing_count].to_i)
+      redirect_to @division, notice: "Generated #{params[:pool_count]} pools."
+    rescue ArgumentError => e
+      redirect_to @division, alert: e.message
     end
 
     def show
