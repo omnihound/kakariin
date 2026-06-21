@@ -1,0 +1,36 @@
+<%
+  rounds = matches.group_by(&:round).sort_by { |round, _| round }
+  leaf_count = rounds.first&.last&.size || 0
+  columns = "repeat(#{rounds.size}, 14rem)"
+%>
+<div id="<%= dom_id(division, :bracket) %>" class="bracket">
+  <div class="bracket-headers" style="grid-template-columns: <%= columns %>;">
+    <% rounds.each do |round, _| %>
+      <div class="bracket-header">Round <%= round %></div>
+    <% end %>
+  </div>
+  <div class="bracket-grid" style="grid-template-columns: <%= columns %>;">
+    <% rounds.each_with_index do |(round, round_matches), round_index| %>
+      <% span = leaf_count / round_matches.size %>
+      <% is_final_round = round_index == rounds.size - 1 %>
+      <% round_matches.each_with_index do |match, i| %>
+        <% row_start = i * span + 1 %>
+        <% elbow_class = is_final_round ? nil : (i.even? ? "elbow-down" : "elbow-up") %>
+        <% entry_class = "bracket-entry" if round_index > 0 %>
+        <% winner_locked = match.winner.present? %>
+        <div class="bracket-cell <%= elbow_class %> <%= entry_class %> <%= "winner-locked" if winner_locked %>"
+             style="grid-column: <%= round_index + 1 %>; grid-row: <%= row_start %> / span <%= span %>;">
+          <div class="bracket-match <%= "winner-locked" if winner_locked %>">
+            <div class="bracket-slot <%= "won" if match.winner && match.winner == match.home %>">
+              <%= participant_name(match.home) %>
+            </div>
+            <div class="bracket-slot <%= "won" if match.winner && match.winner == match.away %>">
+              <%= participant_name(match.away) %>
+            </div>
+            <%= link_to "Score", edit_match_path(match), class: "bracket-score-link" unless match.bye? %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

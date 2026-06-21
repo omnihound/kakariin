@@ -123,36 +123,41 @@
 
 <%= button_to "Generate next round", division_bracket_path(@division), method: :post %>
 
-<% @matches.group_by(&:round).each do |round, matches| %>
-  <h3>Round <%= round %></h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Home</th>
-        <th>Away</th>
-        <th>Score</th>
-        <th>Status</th>
-        <th>Winner</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% matches.each do |match| %>
+<% if @division.round_robin? %>
+  <% @matches.group_by(&:round).each do |round, matches| %>
+    <h3>Round <%= round %></h3>
+    <table>
+      <thead>
         <tr>
-          <td><%= participant_name(match.home) %></td>
-          <td><%= participant_name(match.away) %></td>
-          <td><%= match.home_score %> – <%= match.away_score %></td>
-          <td><span class="tag"><%= match.status %></span></td>
-          <td>
-            <% if match.winner %>
-              <strong><%= participant_name(match.winner) %></strong>
-            <% else %>
-              <span class="muted">—</span>
-            <% end %>
-          </td>
-          <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
+          <th>Home</th>
+          <th>Away</th>
+          <th>Score</th>
+          <th>Status</th>
+          <th>Winner</th>
+          <th></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        <% matches.each do |match| %>
+          <tr>
+            <td><%= participant_name(match.home) %></td>
+            <td><%= participant_name(match.away) %></td>
+            <td><%= match.home_score %> – <%= match.away_score %></td>
+            <td><span class="tag"><%= match.status %></span></td>
+            <td>
+              <% if match.winner %>
+                <strong><%= participant_name(match.winner) %></strong>
+              <% else %>
+                <span class="muted">—</span>
+              <% end %>
+            </td>
+            <td><%= link_to "Score", edit_match_path(match) unless match.bye? %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+<% else %>
+  <%= turbo_stream_from @division %>
+  <%= render "divisions/bracket", division: @division, matches: @matches %>
 <% end %>

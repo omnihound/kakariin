@@ -277,3 +277,109 @@ button, input[type="submit"] {
 .cross-table .mark {
   font-size: 0.8em;
 }
+
+/* Elimination bracket
+ *
+ * Laid out as a CSS grid: leaf (round 1) matches each occupy one row, and a
+ * round-N match spans 2^(N-1) rows starting at index * 2^(N-1) — which
+ * lands its vertical center exactly on the midpoint of the pair of
+ * round-(N-1) matches that feed it. Connector lines exploit that: each
+ * match draws an "elbow" (one border-top/bottom + one border-right) from
+ * its own vertical center to the cell's top or bottom edge, which is
+ * precisely where its pair partner's elbow — and the next round's match
+ * center — line up. No JS layout math needed.
+ */
+
+.bracket {
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.bracket-headers,
+.bracket-grid {
+  display: grid;
+  column-gap: 3rem;
+}
+
+.bracket-grid {
+  grid-auto-rows: 9rem;
+}
+
+.bracket-header {
+  text-align: center;
+  font-size: 0.85em;
+  color: #777;
+  margin-bottom: 0.5rem;
+}
+
+.bracket-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bracket-match {
+  width: 100%;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  background: #fff;
+}
+
+.bracket-match.winner-locked {
+  border-color: #0a6b2d;
+}
+
+.bracket-cell.elbow-down::after,
+.bracket-cell.elbow-up::after {
+  content: "";
+  position: absolute;
+  right: -1.5rem;
+  width: 1.5rem;
+  height: calc(50% - 1px);
+  border-right: 2px solid #ddd;
+}
+
+.bracket-cell.elbow-down::after {
+  top: 50%;
+  border-top: 2px solid #ddd;
+}
+
+.bracket-cell.elbow-up::after {
+  bottom: 50%;
+  border-bottom: 2px solid #ddd;
+}
+
+.bracket-cell.winner-locked.elbow-down::after,
+.bracket-cell.winner-locked.elbow-up::after {
+  border-color: #0a6b2d;
+}
+
+/* A later round's matches only ever exist once every match feeding them is
+   complete (the app won't generate the next round otherwise), so this
+   entry stub is always drawn "settled" — no separate pending state needed. */
+.bracket-cell.bracket-entry::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -1.5rem;
+  width: 1.5rem;
+  border-top: 2px solid #0a6b2d;
+}
+
+.bracket-slot {
+  padding: 0.2rem 0;
+}
+
+.bracket-slot.won {
+  font-weight: 700;
+  color: #0a6b2d;
+}
+
+.bracket-score-link {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.85em;
+  text-align: center;
+}

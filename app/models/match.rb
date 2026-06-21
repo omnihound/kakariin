@@ -14,6 +14,8 @@ class Match < ApplicationRecord
   validates :home_score, :away_score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :winner, absence: true, unless: :completed?
 
+  after_commit :broadcast_bracket_update, on: [:create, :update]
+
   # Sync cached ippon totals from ippons (individual divisions only).
   def recalculate_scores!
     return unless division.individual?
@@ -62,5 +64,18 @@ class Match < ApplicationRecord
 
     update!(home_score: home_wins, away_score: away_wins, winner: result_winner,
             status: "completed", completed_at: Time.current)
+  end
+
+  private
+
+  # Keeps the bracket diagram live for anyone viewing the division page
+  # while a match elsewhere is being scored or a new round is generated.
+  # Pool-stage matches are shown on the pool's own page, not the bracket.
+  def broadcast_bracket_update
+    return if division.round_robin? || pool_id.present?
+    broadcast_replace_to division,
+                          target: ActionView::RecordIdentifier.dom_id(division, :bracket),
+                          partial: "divisions/bracket",
+                          locals: { division: division, matches: division.matches.where(pool_id: nil).order(:round, :id) }
   end
 end
