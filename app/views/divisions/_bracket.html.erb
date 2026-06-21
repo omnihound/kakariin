@@ -2,6 +2,7 @@
   rounds = matches.group_by(&:round).sort_by { |round, _| round }
   leaf_count = rounds.first&.last&.size || 0
   columns = "repeat(#{rounds.size}, 14rem)"
+  seed_lookup = division.individual? ? division.tournament_registrations.pluck(:competitor_id, :seed).to_h : {}
 %>
 <div id="<%= dom_id(division, :bracket) %>" class="bracket">
   <div class="bracket-headers" style="grid-template-columns: <%= columns %>;">
@@ -20,12 +21,34 @@
         <% winner_locked = match.winner.present? %>
         <div class="bracket-cell <%= elbow_class %> <%= entry_class %> <%= "winner-locked" if winner_locked %>"
              style="grid-column: <%= round_index + 1 %>; grid-row: <%= row_start %> / span <%= span %>;">
-          <div class="bracket-match <%= "winner-locked" if winner_locked %>">
+          <div id="<%= dom_id(match) %>" class="bracket-match <%= "winner-locked" if winner_locked %>">
+            <% if match.in_progress? %>
+              <span class="tag bracket-live-tag">Live</span>
+            <% end %>
             <div class="bracket-slot <%= "won" if match.winner && match.winner == match.home %>">
-              <%= participant_name(match.home) %>
+              <span class="bracket-slot-name">
+                <% if (seed = participant_seed(match.home, seed_lookup)) %>
+                  <span class="bracket-seed"><%= seed %></span>
+                <% end %>
+                <%= participant_name(match.home) %>
+                <% if match.bye? %>
+                  <span class="tag bracket-adv-tag">Adv</span>
+                <% end %>
+              </span>
+              <% if match.in_progress? || match.completed? %>
+                <span class="bracket-score"><%= match.home_score %></span>
+              <% end %>
             </div>
             <div class="bracket-slot <%= "won" if match.winner && match.winner == match.away %>">
-              <%= participant_name(match.away) %>
+              <span class="bracket-slot-name">
+                <% if (seed = participant_seed(match.away, seed_lookup)) %>
+                  <span class="bracket-seed"><%= seed %></span>
+                <% end %>
+                <%= participant_name(match.away) %>
+              </span>
+              <% if match.away && (match.in_progress? || match.completed?) %>
+                <span class="bracket-score"><%= match.away_score %></span>
+              <% end %>
             </div>
             <%= link_to "Score", edit_match_path(match), class: "bracket-score-link" unless match.bye? %>
           </div>

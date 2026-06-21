@@ -6,6 +6,14 @@ module ApplicationHelper
     participant.is_a?(Competitor) ? participant.full_name : participant.name
   end
 
+  # Seed for a bracket participant — looked up from the division's
+  # tournament_registrations for individual competitors (no direct seed
+  # column on Competitor), or read straight off TeamEntry#seed for teams.
+  def participant_seed(participant, seed_lookup)
+    return nil if participant.nil?
+    participant.is_a?(Competitor) ? seed_lookup[participant.id] : participant.seed
+  end
+
   TECHNIQUE_MARKS = { "men" => "M", "kote" => "K", "dou" => "D", "tsuki" => "T", "hansoku" => "H" }.freeze
 
   def technique_mark(technique)
