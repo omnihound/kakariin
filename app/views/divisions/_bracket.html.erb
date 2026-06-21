@@ -80,7 +80,7 @@
             <% [ 2 * i, 2 * i + 1 ].each do |source_index| %>
               <% source_match = source_match_for.call(round_index - 1, source_index) %>
               <% winner = source_match&.winner %>
-              <div class="bracket-slot">
+              <div class="bracket-slot <%= "won" if winner %>">
                 <% if winner %>
                   <span class="bracket-slot-name">
                     <% if (seed = participant_seed(winner, seed_lookup)) %>

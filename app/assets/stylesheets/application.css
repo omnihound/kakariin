@@ -328,7 +328,7 @@ button, input[type="submit"] {
 }
 
 .bracket-match.winner-locked {
-  border-color: #0a6b2d;
+  border-color: #c0392b;
 }
 
 .bracket-cell.elbow-down::after,
@@ -353,7 +353,7 @@ button, input[type="submit"] {
 
 .bracket-cell.winner-locked.elbow-down::after,
 .bracket-cell.winner-locked.elbow-up::after {
-  border-color: #0a6b2d;
+  border-color: #c0392b;
 }
 
 /* A later round's matches only ever exist once every match feeding them is
@@ -365,7 +365,7 @@ button, input[type="submit"] {
   top: 50%;
   left: -1.5rem;
   width: 1.5rem;
-  border-top: 2px solid #0a6b2d;
+  border-top: 2px solid #c0392b;
 }
 
 .bracket-slot {
@@ -378,7 +378,11 @@ button, input[type="submit"] {
 
 .bracket-slot.won {
   font-weight: 700;
-  color: #0a6b2d;
+  color: #c0392b;
+  background: #fbe9e9;
+  border-radius: 4px;
+  margin: 0 -0.3rem;
+  padding: 0.2rem 0.3rem;
 }
 
 .bracket-slot-name {
