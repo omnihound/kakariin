@@ -35,7 +35,7 @@
             <% if match.in_progress? %>
               <span class="tag bracket-live-tag">Live</span>
             <% end %>
-            <div class="bracket-slot <%= "won" if match.winner && match.winner == match.home %>">
+            <div class="bracket-slot aka <%= "won" if match.winner && match.winner == match.home %>" title="Aka (red)">
               <span class="bracket-slot-name">
                 <% if (seed = participant_seed(match.home, seed_lookup)) %>
                   <span class="bracket-seed"><%= seed %></span>
@@ -49,7 +49,7 @@
                 <span class="bracket-score"><%= match.home_score %></span>
               <% end %>
             </div>
-            <div class="bracket-slot <%= "won" if match.winner && match.winner == match.away %>">
+            <div class="bracket-slot shiro <%= "won" if match.winner && match.winner == match.away %>" title="Shiro (white)">
               <span class="bracket-slot-name">
                 <% if (seed = participant_seed(match.away, seed_lookup)) %>
                   <span class="bracket-seed"><%= seed %></span>
@@ -80,7 +80,9 @@
             <% [ 2 * i, 2 * i + 1 ].each do |source_index| %>
               <% source_match = source_match_for.call(round_index - 1, source_index) %>
               <% winner = source_match&.winner %>
-              <div class="bracket-slot <%= "won" if winner %>">
+              <% side_class = source_index.even? ? "aka" : "shiro" %>
+              <div class="bracket-slot <%= side_class %> <%= "won" if winner %>"
+                   title="<%= side_class == "aka" ? "Aka (red)" : "Shiro (white)" %>">
                 <% if winner %>
                   <span class="bracket-slot-name">
                     <% if (seed = participant_seed(winner, seed_lookup)) %>
