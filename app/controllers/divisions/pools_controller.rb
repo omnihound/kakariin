@@ -1,7 +1,7 @@
 module Divisions
   class PoolsController < ApplicationController
-    before_action :set_division, only: [:index, :new, :create, :generate]
-    before_action :set_pool, only: [:show, :edit, :update, :destroy]
+    before_action :set_division, only: [ :index, :new, :create, :generate ]
+    before_action :set_pool, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @pools = @division.pools.includes(:competitors).order(:name)

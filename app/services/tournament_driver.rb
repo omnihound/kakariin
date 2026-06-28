@@ -36,7 +36,7 @@ class TournamentDriver < TournamentSystem::Driver
   end
 
   def ranked_teams
-    seeded_teams.sort_by.with_index { |team, i| [-get_team_score(team), i] }
+    seeded_teams.sort_by.with_index { |team, i| [ -get_team_score(team), i ] }
   end
 
   def get_match_winner(match)
@@ -44,7 +44,7 @@ class TournamentDriver < TournamentSystem::Driver
   end
 
   def get_match_teams(match)
-    [match.home, match.away]
+    [ match.home, match.away ]
   end
 
   def get_team_score(team)

@@ -4,6 +4,14 @@ require "tournament_system"
 # Creates a tournament with an 8-person individual bracket and a 4-team bracket,
 # then runs bracket generation so you can inspect Match records in the console.
 
+puts "== Default user"
+
+User.find_or_create_by!(email_address: "admin@example.com") do |u|
+  u.password = "password"
+end
+
+puts "  admin@example.com / password"
+
 puts "== Competitors"
 
 competitor_attrs = [
@@ -22,7 +30,7 @@ competitor_attrs = [
   { first_name: "Olivia",  last_name: "Walker",    gender: "female", grade_rank: 1, grade_type: "dan", country: "AU" },
   { first_name: "Ryo",     last_name: "Saito",     gender: "male",   grade_rank: 2, grade_type: "dan", country: "AU" },
   { first_name: "Grace",   last_name: "Liu",       gender: "female", grade_rank: 1, grade_type: "kyu", country: "AU" },
-  { first_name: "Daniel",  last_name: "Nguyen",    gender: "male",   grade_rank: 1, grade_type: "kyu", country: "AU" },
+  { first_name: "Daniel",  last_name: "Nguyen",    gender: "male",   grade_rank: 1, grade_type: "kyu", country: "AU" }
 ]
 
 competitors = competitor_attrs.map do |attrs|
@@ -94,7 +102,7 @@ puts "== Team entries"
   { name: "Melbourne Kendo Club", members: competitors.values_at(0, 4, 8) },
   { name: "Sydney Kendo Renmei",  members: competitors.values_at(1, 5, 9) },
   { name: "Brisbane Kendo Kai",   members: competitors.values_at(2, 6, 10) },
-  { name: "Adelaide Kendo Dojo",  members: competitors.values_at(3, 7, 11) },
+  { name: "Adelaide Kendo Dojo",  members: competitors.values_at(3, 7, 11) }
 ].each_with_index do |data, i|
   team = TeamEntry.find_or_create_by!(division: team_div, name: data[:name]) do |t|
     t.seed   = i + 1
@@ -140,11 +148,15 @@ else
 end
 
 if championship_div.matches.none?
-  puts "  Playing out the 16-draw bracket (lower seed wins each match)..."
+  puts "  Playing out the 16-draw bracket (lower seed wins, with a few round-1 upsets so shiro/away wins show up in the bracket too)..."
   seed_for = ->(c) { championship_div.tournament_registrations.find_by(competitor: c).seed }
   total_rounds = TournamentSystem::SingleElimination.total_rounds(TournamentDriver.new(championship_div))
+  # Home is always the better seed in round 1 (see TournamentSystem::Algorithm::SingleBracket.seed),
+  # so picking the better seed every time would mean shiro (away) never wins. Flip these
+  # round-1 match positions (0-indexed, in creation order) so the bracket view exercises both sides.
+  round1_upset_positions = [ 1, 3, 5 ]
 
-  total_rounds.times do
+  total_rounds.times do |round_index|
     # TournamentDriver#matches caches @division.matches.to_a per instance,
     # but reusing championship_div across iterations means Rails' own
     # association cache on it goes stale once match records are updated
@@ -154,8 +166,13 @@ if championship_div.matches.none?
     championship_div.association(:matches).reset
     TournamentSystem::SingleElimination.generate(TournamentDriver.new(championship_div))
     current_round = championship_div.matches.maximum(:round)
-    championship_div.matches.where(round: current_round, status: "pending").each do |m|
-      winner = [ m.home, m.away ].compact.min_by(&seed_for)
+    championship_div.matches.where(round: current_round, status: "pending").order(:id).each_with_index do |m, i|
+      winner =
+        if round_index.zero? && round1_upset_positions.include?(i)
+          m.away
+        else
+          [ m.home, m.away ].compact.min_by(&seed_for)
+        end
       m.update!(winner: winner, status: "completed")
     end
   end
@@ -196,7 +213,7 @@ if team_div.matches.none?
         status: "completed"
       )
     end
-    match.recalculate_team_result!
+    match.finalize_team_result!
     puts "    #{match.home.name} #{match.home_score} - #{match.away_score} #{match.away.name} -> winner: #{match.winner.name}"
   end
 else

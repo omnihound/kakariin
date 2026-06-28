@@ -1,6 +1,6 @@
 class DivisionsController < ApplicationController
-  before_action :set_tournament, only: [:new, :create]
-  before_action :set_division, only: [:show, :edit, :update, :destroy]
+  before_action :set_tournament, only: [ :new, :create ]
+  before_action :set_division, only: [ :show, :edit, :update, :destroy ]
 
   def show
     if @division.pools_then_elimination?

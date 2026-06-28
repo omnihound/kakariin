@@ -1,7 +1,7 @@
 module Divisions
   class TeamEntriesController < ApplicationController
-    before_action :set_division, only: [:index, :new, :create]
-    before_action :set_team_entry, only: [:show, :edit, :update, :destroy]
+    before_action :set_division, only: [ :index, :new, :create ]
+    before_action :set_team_entry, only: [ :show, :edit, :update, :destroy ]
 
     def index
       @team_entries = @division.team_entries.includes(:competitors).order(Arel.sql("seed ASC NULLS LAST"))

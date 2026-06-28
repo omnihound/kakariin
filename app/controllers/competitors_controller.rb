@@ -1,5 +1,5 @@
 class CompetitorsController < ApplicationController
-  before_action :set_competitor, only: [:show, :edit, :update, :destroy]
+  before_action :set_competitor, only: [ :show, :edit, :update, :destroy ]
 
   def index
     @competitors = Competitor.order(:last_name, :first_name)

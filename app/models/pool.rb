@@ -43,7 +43,7 @@ class Pool < ApplicationRecord
     matches = matches_array
     pool_registrations.includes(:competitor)
                       .order(Arel.sql("seed ASC NULLS LAST"))
-                      .sort_by.with_index { |pr, i| [-win_count(pr.competitor, matches), -ippon_diff(pr.competitor, matches), i] }
+                      .sort_by.with_index { |pr, i| [ -win_count(pr.competitor, matches), -ippon_diff(pr.competitor, matches), i ] }
                       .map(&:competitor)
   end
 

@@ -14,7 +14,7 @@ class Match < ApplicationRecord
   validates :home_score, :away_score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :winner, absence: true, unless: :completed?
 
-  after_commit :broadcast_bracket_update, on: [:create, :update]
+  after_commit :broadcast_bracket_update, on: [ :create, :update ]
 
   # Sync cached ippon totals from ippons (individual divisions only).
   def recalculate_scores!
