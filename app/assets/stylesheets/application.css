@@ -98,6 +98,23 @@ nav a {
 
 nav a:hover { color: var(--ink); }
 
+.nav-form { display: contents; }
+
+.nav-button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: .3rem 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.nav-button:hover { background: none; color: var(--ink); }
+
 /* ---- Typography ------------------------------------------------------------ */
 
 h1, h2, h3 {
@@ -211,6 +228,17 @@ input:focus, textarea:focus, select:focus {
 input[type="radio"] { accent-color: var(--aka); width: auto; margin-right: .35rem; }
 
 .actions { margin-top: 1.25rem; display: flex; gap: .6rem; flex-wrap: wrap; }
+
+/* ---- Auth pages -------------------------------------------------------------- */
+
+.auth-card { max-width: 24rem; margin: 2.5rem auto 0; }
+.auth-card h1 { text-align: center; }
+.auth-card .field { max-width: none; }
+.auth-card .actions { margin-top: 1rem; }
+.auth-card .actions input[type="submit"] { width: 100%; }
+
+.auth-links { margin-top: 1.5rem; text-align: center; font-size: .9rem; }
+.auth-links a { display: block; margin-top: .5rem; }
 
 /* ---- Buttons --------------------------------------------------------------- */
 
@@ -504,6 +532,10 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
   background: var(--ok-soft);
 }
 
+/* A ghost slot whose competitor is known (advanced from the prior round)
+   but who hasn't won this match yet — bold, but not the "won" green. */
+.bracket-slot.decided { font-weight: 700; }
+
 .bracket-slot-name {
   display: flex;
   align-items: center;
@@ -511,6 +543,7 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .bracket-seed {
@@ -551,7 +584,6 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
 
 .bracket-match-ghost { background: var(--surface-2); border-style: dashed; opacity: .85; }
 .bracket-placeholder { font-style: italic; color: var(--faint); }
-.bracket-source-note { display: block; font-size: .72rem; color: var(--faint); }
 
 .bracket-cell.bracket-ghost.elbow-down::after,
 .bracket-cell.bracket-ghost.elbow-up::after { border-style: dashed; }

@@ -81,7 +81,7 @@
               <% source_match = source_match_for.call(round_index - 1, source_index) %>
               <% winner = source_match&.winner %>
               <% side_class = source_index.even? ? "aka" : "shiro" %>
-              <div class="bracket-slot <%= side_class %> <%= "won" if winner %>"
+              <div class="bracket-slot <%= side_class %> <%= "decided" if winner %>"
                    title="<%= side_class == "aka" ? "Aka (red)" : "Shiro (white)" %>">
                 <% if winner %>
                   <span class="bracket-slot-name">
@@ -90,7 +90,6 @@
                     <% end %>
                     <%= participant_name(winner) %>
                   </span>
-                  <span class="bracket-source-note">won <%= prev_round_name %> <%= source_index + 1 %></span>
                 <% else %>
                   <span class="bracket-placeholder">Winner of <%= prev_round_name %> <%= source_index + 1 %></span>
                 <% end %>

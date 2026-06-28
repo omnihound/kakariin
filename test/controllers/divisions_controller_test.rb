@@ -45,7 +45,6 @@ class DivisionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".bracket-match-ghost .bracket-slot-name", text: /#{first_match.home.full_name}/
-    assert_select ".bracket-match-ghost .bracket-source-note", text: "won Semifinal 1"
     assert_select ".bracket-match-ghost .bracket-placeholder", text: "Winner of Semifinal 2"
   end
 

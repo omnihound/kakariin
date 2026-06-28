@@ -25,8 +25,13 @@
 
   <body>
     <nav>
-      <%= link_to "Tournaments", tournaments_path %>
-      <%= link_to "Competitors", competitors_path %>
+      <% if authenticated? %>
+        <%= link_to "Tournaments", tournaments_path %>
+        <%= link_to "Competitors", competitors_path %>
+        <%= button_to "Sign out", session_path, method: :delete, class: "nav-button", form_class: "nav-form" %>
+      <% else %>
+        <%= link_to "Sign in", new_session_path %>
+      <% end %>
     </nav>
 
     <% if flash[:notice] %><div class="flash-notice"><%= flash[:notice] %></div><% end %>
