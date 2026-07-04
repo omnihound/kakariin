@@ -173,6 +173,56 @@ tbody tr:hover { background: var(--surface-2); }
 
 td a { font-weight: 600; }
 
+/* ---- Collapsible pool rows --------------------------------------------------- */
+
+.pools-table {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin: 1rem 0 1.75rem;
+}
+
+.pools-table-header,
+.pool-row summary {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2rem;
+  align-items: center;
+  gap: .9rem;
+  padding: .7rem .9rem;
+}
+
+.pools-table-header {
+  background: var(--surface);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--faint);
+  border-bottom: 1px solid var(--line);
+}
+
+.pool-row { border-bottom: 1px solid var(--line-soft); }
+.pool-row:last-child { border-bottom: none; }
+
+.pool-row summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: .94rem;
+  transition: background .1s ease;
+}
+.pool-row summary::-webkit-details-marker { display: none; }
+.pool-row summary:hover { background: var(--surface-2); }
+
+.pool-row .chevron {
+  color: var(--faint);
+  transition: transform .15s ease;
+}
+.pool-row[open] .chevron { transform: rotate(90deg); }
+
+.pool-row-detail { padding: .1rem 1rem 1.1rem; background: var(--surface-2); }
+.pool-row-detail h2 { margin: .9rem 0 .5rem; }
+.pool-row-detail table { margin: 0 0 .5rem; }
+
 /* ---- Forms ----------------------------------------------------------------- */
 
 form.inline { display: inline; }
@@ -445,6 +495,42 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
 }
 .bout-winner-row label { font-size: .85rem; margin-right: .75rem; }
 
+/* ---- Lineup modal ----------------------------------------------------------- */
+
+turbo-frame#modal:not(:empty) {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 22, .45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.modal-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 32rem;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px -20px rgba(0,0,0,.4);
+}
+
+.modal-card h2 { margin-top: 0; }
+
+.lineup-grid { margin-top: 1rem; }
+.lineup-grid select { width: 100%; }
+.lineup-grid td .tag { margin-left: .5rem; }
+
 /* ---- Pool cross-table ------------------------------------------------------ */
 
 .cross-table { font-size: .9rem; }
@@ -453,6 +539,17 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
 .cross-table tr.advances { background: var(--ok-soft); }
 .cross-table tr.advances td { border-color: #d5efe0; }
 .cross-table .mark { font-size: .78rem; }
+
+.side-dot {
+  display: inline-block;
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  margin-right: .3rem;
+  vertical-align: middle;
+}
+.side-dot.aka   { background: var(--aka); }
+.side-dot.shiro { background: var(--shiro); }
 
 /* =============================================================================
  * Elimination bracket  (geometry preserved from original; palette refreshed)

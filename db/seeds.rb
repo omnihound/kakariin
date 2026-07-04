@@ -123,13 +123,23 @@ pools_div = Division.find_or_create_by!(tournament: tournament, name: "Open Pool
   d.format           = "pools_then_elimination"
 end
 
-pool_a = Pool.find_or_create_by!(division: pools_div, name: "Pool A") { |p| p.advancing_count = 2 }
-pool_b = Pool.find_or_create_by!(division: pools_div, name: "Pool B") { |p| p.advancing_count = 2 }
-
-{ pool_a => competitors.values_at(0, 2, 4, 6), pool_b => competitors.values_at(1, 3, 5, 7) }.each do |pool, members|
-  members.each_with_index do |competitor, i|
-    PoolRegistration.find_or_create_by!(pool: pool, competitor: competitor) { |r| r.seed = i + 1 }
+# 12 competitors, seeded by grade — enough to show Pool.preferred_pool_count
+# favoring 3-competitor pools (4 pools of 3) over larger ones.
+competitors.first(12).each_with_index do |competitor, i|
+  TournamentRegistration.find_or_create_by!(competitor: competitor, division: pools_div) do |r|
+    r.seed   = i + 1
+    r.status = "confirmed"
   end
+end
+
+puts "  #{pools_div.tournament_registrations.confirmed.count} confirmed"
+
+if pools_div.pools.none?
+  pool_count = Pool.preferred_pool_count(pools_div.tournament_registrations.confirmed.count)
+  Pool.generate_for_division!(pools_div, pool_count: pool_count, advancing_count: 2)
+  puts "  Generated #{pool_count} pools (preferring 3 competitors per pool)"
+else
+  puts "  Pools already generated (#{pools_div.pools.count} pools), skipping"
 end
 
 puts "  #{Pool.count} pools, #{PoolRegistration.count} pool registrations"
@@ -222,7 +232,7 @@ end
 
 if pools_div.matches.none?
   puts "  Playing out pool stage (lower seed wins each match)..."
-  [ pool_a, pool_b ].each do |pool|
+  pools_div.pools.order(:name).each do |pool|
     total_rounds = TournamentSystem::RoundRobin.total_rounds(PoolDriver.new(pool))
     total_rounds.times do
       TournamentSystem::RoundRobin.generate(PoolDriver.new(pool))

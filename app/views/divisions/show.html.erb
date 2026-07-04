@@ -23,7 +23,8 @@
     <%= form_with url: generate_division_pools_path(@division), method: :post do |f| %>
       <div class="field">
         <%= f.label :pool_count, "Number of pools" %>
-        <%= f.number_field :pool_count, min: 1, value: 2 %>
+        <%= f.number_field :pool_count, min: 1, value: Pool.preferred_pool_count(@registrations.confirmed.size) %>
+        <p class="muted">Defaults to keeping pools at 3 competitors, using 4 only where needed.</p>
       </div>
       <div class="field">
         <%= f.label :advancing_count, "Qualifiers per pool" %>
@@ -36,34 +37,42 @@
   <% else %>
     <p><%= link_to "New pool", new_division_pool_path(@division) %></p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Advancing</th>
-          <th>Competitors</th>
-          <th>Status</th>
-          <th>Qualifiers</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @pools.each do |pool| %>
-          <tr>
-            <td><%= link_to pool.name, pool %></td>
-            <td><%= pool.advancing_count %></td>
-            <td><%= pool.competitors.size %></td>
-            <td><span class="tag"><%= pool.status %></span></td>
-            <td>
+    <div class="pools-table">
+      <div class="pools-table-header">
+        <span>Name</span>
+        <span>Advancing</span>
+        <span>Competitors</span>
+        <span>Status</span>
+        <span>Qualifiers</span>
+        <span></span>
+      </div>
+      <% @pools.each do |pool| %>
+        <details class="pool-row">
+          <summary>
+            <span><%= link_to pool.name, pool %></span>
+            <span><%= pool.advancing_count %></span>
+            <span><%= pool.competitors.size %></span>
+            <span><span class="tag"><%= pool.status %></span></span>
+            <span>
               <% if pool.all_matches_complete? %>
                 <%= pool.qualifiers.map(&:full_name).join(", ") %>
               <% else %>
                 <span class="muted">TBD</span>
               <% end %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+            </span>
+            <span class="chevron" aria-hidden="true">▸</span>
+          </summary>
+
+          <div class="pool-row-detail">
+            <% if pool.pool_matches.none? %>
+              <p class="muted">No matches yet.</p>
+            <% else %>
+              <%= render "divisions/pools/standings", pool: pool %>
+            <% end %>
+          </div>
+        </details>
+      <% end %>
+    </div>
   <% end %>
 
 <% elsif @division.individual? %>

@@ -37,6 +37,17 @@ class Pool < ApplicationRecord
     end
   end
 
+  # Suggests how many pools to create so pools skew toward 3 competitors,
+  # only falling back to 4 to absorb a remainder that doesn't divide evenly.
+  # Tries the largest pool count whose pools are still all size 3, then
+  # relaxes to allow size 4 pools, from most pools (smallest) to fewest.
+  def self.preferred_pool_count(total_registrations)
+    (1..(total_registrations / 3)).reverse_each do |count|
+      return count if (total_registrations.to_f / count).ceil <= 4
+    end
+    1
+  end
+
   # Competitors ranked by wins within this pool, ippon difference as
   # tiebreaker, then seed.
   def standings

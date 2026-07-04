@@ -57,4 +57,17 @@ class PoolTest < ActiveSupport::TestCase
 
     assert_raises(ArgumentError) { Pool.generate_for_division!(division, pool_count: 2, advancing_count: 1) }
   end
+
+  test "preferred_pool_count favors pools of 3, using 4 only for the remainder" do
+    assert_equal 1, Pool.preferred_pool_count(1)
+    assert_equal 1, Pool.preferred_pool_count(3)
+    assert_equal 1, Pool.preferred_pool_count(4)
+    assert_equal 1, Pool.preferred_pool_count(5)
+    assert_equal 2, Pool.preferred_pool_count(6)
+    assert_equal 2, Pool.preferred_pool_count(8)
+    assert_equal 3, Pool.preferred_pool_count(9)
+    assert_equal 3, Pool.preferred_pool_count(10)
+    assert_equal 3, Pool.preferred_pool_count(11)
+    assert_equal 4, Pool.preferred_pool_count(12)
+  end
 end

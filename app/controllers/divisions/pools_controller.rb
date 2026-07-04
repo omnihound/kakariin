@@ -8,8 +8,10 @@ module Divisions
     end
 
     def generate
-      Pool.generate_for_division!(@division, pool_count: params[:pool_count].to_i, advancing_count: params[:advancing_count].to_i)
-      redirect_to @division, notice: "Generated #{params[:pool_count]} pools."
+      pool_count = params[:pool_count].presence&.to_i ||
+        Pool.preferred_pool_count(@division.tournament_registrations.confirmed.count)
+      Pool.generate_for_division!(@division, pool_count: pool_count, advancing_count: params[:advancing_count].to_i)
+      redirect_to @division, notice: "Generated #{pool_count} pools."
     rescue ArgumentError => e
       redirect_to @division, alert: e.message
     end
