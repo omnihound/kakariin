@@ -1,0 +1,67 @@
+<turbo-frame id="modal">
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h2>Set lineup — Round <%= @match.round %></h2>
+      <p class="muted"><%= participant_name(@match.home) %> vs <%= participant_name(@match.away) %></p>
+
+      <% if @match.errors.any? %>
+        <div class="error-messages">
+          <ul>
+            <% @match.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%= form_with url: match_lineup_path(@match), method: :patch, scope: :lineup, data: { turbo_frame: "_top" } do %>
+        <table class="lineup-grid">
+          <thead>
+            <tr>
+              <th>Position</th>
+              <th><%= participant_name(@match.home) %></th>
+              <th><%= participant_name(@match.away) %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @positions.each do |position| %>
+              <% bout = @bouts_by_position[position] %>
+              <tr>
+                <td><%= Bout::POSITION_NAMES[@positions.size]&.dig(position) || "Position #{position + 1}" %></td>
+                <% if bout && !bout.pending? %>
+                  <td><%= bout.home_competitor.full_name %></td>
+                  <td>
+                    <%= bout.away_competitor&.full_name || "forfeit" %>
+                    <span class="tag">locked · <%= bout.status %></span>
+                  </td>
+                <% else %>
+                  <td>
+                    <select name="lineup[bouts][<%= position %>][home_competitor_id]">
+                      <option value="">— unset —</option>
+                      <% @match.home.competitors.each do |c| %>
+                        <option value="<%= c.id %>" <%= "selected" if bout&.home_competitor_id == c.id %>><%= c.full_name %></option>
+                      <% end %>
+                    </select>
+                  </td>
+                  <td>
+                    <select name="lineup[bouts][<%= position %>][away_competitor_id]">
+                      <option value="">Forfeit</option>
+                      <% @match.away.competitors.each do |c| %>
+                        <option value="<%= c.id %>" <%= "selected" if bout&.away_competitor_id == c.id %>><%= c.full_name %></option>
+                      <% end %>
+                    </select>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+
+        <div class="actions">
+          <%= link_to "Cancel", edit_match_path(@match), data: { turbo_frame: "_top" } %>
+          <%= submit_tag "Save lineup" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</turbo-frame>

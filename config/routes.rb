@@ -32,6 +32,7 @@ Rails.application.routes.draw do
 
   resources :matches, only: [ :show, :edit, :update ] do
     member { post :finalize }
+    resource :lineup, only: [ :edit, :update ]
     resources :bouts, only: [ :create, :update, :destroy ] do
       resources :ippons, only: [ :create, :destroy ]
     end

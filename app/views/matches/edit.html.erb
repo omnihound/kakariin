@@ -78,8 +78,11 @@
     · <span class="tag"><%= @match.status %></span>
   </p>
 
-  <% unless @match.completed? %>
-    <p class="center"><%= button_to "Finalize match", finalize_match_path(@match), method: :post, class: "inline", form: { data: { turbo_confirm: "Lock in the result from the bouts entered so far?" } } %></p>
+  <% if !@match.completed? && @match.away %>
+    <p class="center">
+      <%= link_to "Set full lineup", edit_match_lineup_path(@match), data: { turbo_frame: "modal" } %>
+      · <%= button_to "Finalize match", finalize_match_path(@match), method: :post, class: "inline", form: { data: { turbo_confirm: "Lock in the result from the bouts entered so far?" } } %>
+    </p>
   <% end %>
 
   <table class="bout-ladder">
@@ -145,6 +148,7 @@
               <label><input type="radio" name="bout[winner_position]" value="home" <%= "checked" if bout.winner == bout.home_competitor %>> Home wins</label>
               <% if bout.away_competitor %>
                 <label><input type="radio" name="bout[winner_position]" value="away" <%= "checked" if bout.winner == bout.away_competitor %>> Away wins</label>
+                <label><input type="radio" name="bout[winner_position]" value="draw" <%= "checked" if bout.completed? && bout.winner.nil? %>> Hikiwake (draw)</label>
               <% end %>
               <%= f.select :status, Bout.statuses.keys, selected: bout.status %>
               <%= f.submit "Save" %>
@@ -154,26 +158,6 @@
       <% end %>
     </tbody>
   </table>
-
-  <h3>Add bout</h3>
-
-  <%= form_with url: match_bouts_path(@match), scope: :bout do |f| %>
-    <div class="field">
-      <%= f.label :position, "Position (0 = senpo)" %>
-      <%= f.number_field :position, min: 0, value: @match.bouts.count %>
-    </div>
-    <div class="field">
-      <%= f.label :home_competitor_id, "#{participant_name(@match.home)} competitor" %>
-      <%= f.collection_select :home_competitor_id, @match.home.competitors, :id, :full_name, include_blank: true %>
-    </div>
-    <div class="field">
-      <%= f.label :away_competitor_id, "#{participant_name(@match.away)} competitor" %>
-      <%= f.collection_select :away_competitor_id, @match.away.competitors, :id, :full_name, include_blank: "Forfeit" %>
-    </div>
-    <div class="actions">
-      <%= f.submit "Add bout" %>
-    </div>
-  <% end %>
 <% end %>
 
 <h2>Match details</h2>
