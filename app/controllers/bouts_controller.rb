@@ -16,10 +16,10 @@ class BoutsController < ApplicationController
 
     if (position = params.dig(:bout, :winner_position)).present?
       bout.winner = case position
-                    when "home" then bout.home_competitor
-                    when "away" then bout.away_competitor
-                    when "draw" then nil
-                    end
+      when "home" then bout.home_competitor
+      when "away" then bout.away_competitor
+      when "draw" then nil
+      end
       bout.status = "completed"
     end
 
