@@ -51,4 +51,74 @@ class PoolDriverTest < ActiveSupport::TestCase
     assert_equal courts(:court_1), pool_a_match.court
     assert_equal courts(:court_2), pool_b_match.court
   end
+
+  test "build_match keeps a competitor who was aka last time as aka again" do
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 1, home: competitors(:sarah), away: competitors(:yuki), status: "completed"
+    )
+
+    match = PoolDriver.new(pools(:pool_b)).build_match(competitors(:aiko), competitors(:sarah))
+
+    assert_equal competitors(:sarah), match.home
+    assert_equal competitors(:aiko), match.away
+  end
+
+  test "build_match keeps a competitor who was shiro last time as shiro again" do
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 1, home: competitors(:yuki), away: competitors(:sarah), status: "completed"
+    )
+
+    match = PoolDriver.new(pools(:pool_b)).build_match(competitors(:sarah), competitors(:aiko))
+
+    assert_equal competitors(:aiko), match.home
+    assert_equal competitors(:sarah), match.away
+  end
+
+  test "build_match flips exactly one side when both competitors were aka last time" do
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 1, home: competitors(:sarah), away: competitors(:yuki), status: "completed"
+    )
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 2, home: competitors(:aiko), away: competitors(:yuki), status: "completed"
+    )
+
+    match = PoolDriver.new(pools(:pool_b)).build_match(competitors(:sarah), competitors(:aiko))
+
+    assert_equal competitors(:aiko), match.home
+    assert_equal competitors(:sarah), match.away
+  end
+
+  test "build_match, in a same-side conflict, keeps the side of whoever played more recently, regardless of argument order" do
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 1, home: competitors(:sarah), away: competitors(:yuki), status: "completed"
+    )
+    pools(:pool_b).division.matches.create!(
+      pool: pools(:pool_b), round: 2, home: competitors(:aiko), away: competitors(:yuki), status: "completed"
+    )
+
+    # aiko played the more recent round (2) than sarah (1), so aiko should
+    # keep aka and sarah should flip, no matter which one is passed first.
+    match = PoolDriver.new(pools(:pool_b)).build_match(competitors(:aiko), competitors(:sarah))
+
+    assert_equal competitors(:aiko), match.home
+    assert_equal competitors(:sarah), match.away
+  end
+
+  test "a full 3-competitor round robin only forces one side change across the whole pool" do
+    pool = pools(:pool_b)
+
+    3.times do
+      TournamentSystem::RoundRobin.generate(PoolDriver.new(pool))
+      pool.pool_matches.where(status: "pending").each { |m| m.update!(status: "completed", winner: m.home) }
+    end
+
+    sides_by_competitor = pool.pool_matches.reject(&:bye?).sort_by(&:round).each_with_object(Hash.new { |h, k| h[k] = [] }) do |match, memo|
+      memo[match.home] << :aka
+      memo[match.away] << :shiro
+    end
+
+    total_changes = sides_by_competitor.values.sum { |sides| sides.each_cons(2).count { |a, b| a != b } }
+
+    assert_equal 1, total_changes
+  end
 end
