@@ -36,3 +36,27 @@
     <% end %>
   </tbody>
 </table>
+
+<h2>Courts</h2>
+
+<%= link_to "New court", new_tournament_court_path(@tournament) %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @courts.each do |court| %>
+      <tr>
+        <td><%= court.name %></td>
+        <td>
+          <%= link_to "Edit", edit_court_path(court) %>
+          <%= button_to "Delete", court, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this court?" } } %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

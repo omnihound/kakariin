@@ -52,6 +52,14 @@ end
 
 puts "  #{tournament.name}"
 
+puts "== Courts"
+
+courts = [ "Court 1", "Court 2", "Court 3" ].map do |name|
+  Court.find_or_create_by!(tournament: tournament, name: name)
+end
+
+puts "  #{courts.size} courts"
+
 puts "== Divisions"
 
 individual_div = Division.find_or_create_by!(tournament: tournament, name: "Open Individual") do |d|
@@ -254,5 +262,31 @@ if pools_div.matches.none?
 else
   puts "  Pools division already generated (#{pools_div.matches.count} matches), skipping"
 end
+
+puts "== Backfilling courts for matches generated before courts existed"
+
+# Mirrors TournamentDriver/PoolDriver's own round-robin: byes get no court,
+# and each round starts the rotation over from the first court.
+def backfill_courts_by_round(matches_scope, courts)
+  return if courts.empty?
+
+  matches_scope.where(court_id: nil).group_by(&:round).each_value do |round_matches|
+    round_matches.reject(&:bye?).sort_by(&:id).each_with_index do |match, i|
+      match.update!(court: courts[i % courts.size])
+    end
+  end
+end
+
+[ individual_div, team_div, championship_div ].each { |division| backfill_courts_by_round(division.matches, courts) }
+backfill_courts_by_round(pools_div.matches.where(pool_id: nil), courts)
+
+# Pool-stage matches: a whole pool's round-robin stays on one court, same as PoolDriver.
+pools_div.pools.order(:name).each_with_index do |pool, i|
+  next if courts.empty?
+  court = courts[i % courts.size]
+  pool.pool_matches.where(court_id: nil).where.not(status: "bye").find_each { |m| m.update!(court: court) }
+end
+
+puts "  #{Match.where.not(court_id: nil).count} of #{Match.count} matches have a court assigned"
 
 puts "== Done (#{Match.count} matches total)"

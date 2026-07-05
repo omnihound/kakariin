@@ -27,12 +27,12 @@ class MatchesControllerTest < ActionDispatch::IntegrationTest
     assert_nil match.winner
   end
 
-  test "team division: mat_number and scheduled_at can still be set" do
+  test "team division: court_id and scheduled_at can still be set" do
     match = matches(:team_r1)
 
-    patch match_path(match), params: { match: { mat_number: 3 } }
+    patch match_path(match), params: { match: { court_id: courts(:court_1).id } }
 
-    assert_equal 3, match.reload.mat_number
+    assert_equal courts(:court_1), match.reload.court
   end
 
   test "finalize locks in the team result from current bouts" do

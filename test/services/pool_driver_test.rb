@@ -36,4 +36,19 @@ class PoolDriverTest < ActiveSupport::TestCase
     match = driver.build_match(competitors(:hiroshi), competitors(:james))
     assert_equal 4, match.round
   end
+
+  test "build_match assigns every match in a pool to the same court" do
+    driver = PoolDriver.new(pools(:pool_b))
+    match1 = driver.build_match(competitors(:sarah), competitors(:yuki))
+    match2 = driver.build_match(competitors(:sarah), competitors(:aiko))
+    assert_equal match1.court, match2.court
+  end
+
+  test "build_match assigns different pools to different courts" do
+    pool_a_match = PoolDriver.new(pools(:pool_a)).build_match(competitors(:hiroshi), competitors(:james))
+    pool_b_match = PoolDriver.new(pools(:pool_b)).build_match(competitors(:sarah), competitors(:yuki))
+
+    assert_equal courts(:court_1), pool_a_match.court
+    assert_equal courts(:court_2), pool_b_match.court
+  end
 end

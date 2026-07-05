@@ -71,6 +71,13 @@ class Pool < ApplicationRecord
     division.matches.where(pool: self)
   end
 
+  # A pool's whole round-robin plays on one court (see PoolDriver#build_match),
+  # so any non-bye match's court represents the pool's court. Nil before the
+  # pool's matches have been generated.
+  def court
+    matches_array.filter_map(&:court).first
+  end
+
   # The match between two competitors within this pool, for cross-table cells.
   def match_between(a, b)
     matches_array.detect { |m| (m.home == a && m.away == b) || (m.home == b && m.away == a) }

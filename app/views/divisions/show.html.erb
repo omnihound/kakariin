@@ -40,6 +40,7 @@
     <div class="pools-table">
       <div class="pools-table-header">
         <span>Name</span>
+        <span>Court</span>
         <span>Advancing</span>
         <span>Competitors</span>
         <span>Status</span>
@@ -50,6 +51,7 @@
         <details class="pool-row">
           <summary>
             <span><%= link_to pool.name, pool %></span>
+            <span><%= pool.court&.name || "—" %></span>
             <span><%= pool.advancing_count %></span>
             <span><%= pool.competitors.size %></span>
             <span><span class="tag"><%= pool.status %></span></span>
@@ -141,6 +143,7 @@
           <th>Home</th>
           <th>Away</th>
           <th>Score</th>
+          <th>Court</th>
           <th>Status</th>
           <th>Winner</th>
           <th></th>
@@ -152,6 +155,7 @@
             <td><%= participant_name(match.home) %></td>
             <td><%= participant_name(match.away) %></td>
             <td><%= match.home_score %> – <%= match.away_score %></td>
+            <td><%= match.court&.name || "—" %></td>
             <td><span class="tag"><%= match.status %></span></td>
             <td>
               <% if match.winner %>

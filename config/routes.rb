@@ -18,6 +18,7 @@ Rails.application.routes.draw do
         end
       end
     end
+    resources :courts, shallow: true, only: [ :new, :create, :edit, :update, :destroy ]
   end
 
   resources :team_entries, only: [] do

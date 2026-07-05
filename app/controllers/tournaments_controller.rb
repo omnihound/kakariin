@@ -7,6 +7,7 @@ class TournamentsController < ApplicationController
 
   def show
     @divisions = @tournament.divisions.order(:name)
+    @courts = @tournament.courts.order(:name)
   end
 
   def new

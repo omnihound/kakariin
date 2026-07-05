@@ -60,11 +60,24 @@ class TournamentDriver < TournamentSystem::Driver
       round: build_round,
       home: home_team,
       away: away_team,
-      status: away_team.nil? ? "bye" : "pending"
+      status: away_team.nil? ? "bye" : "pending",
+      court: away_team.nil? ? nil : next_court
     )
   end
 
   private
+
+  def courts
+    @courts ||= @division.tournament.courts.order(:name).to_a
+  end
+
+  def next_court
+    return nil if courts.empty?
+    @court_index ||= 0
+    court = courts[@court_index % courts.size]
+    @court_index += 1
+    court
+  end
 
   # Interleave pool qualifiers by finishing rank across pools.
   # With 4 pools advancing 2 each the order is:

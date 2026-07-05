@@ -1,0 +1,20 @@
+<%= form_with model: court, url: (court.persisted? ? court_path(court) : tournament_courts_path(@tournament)) do |form| %>
+  <% if court.errors.any? %>
+    <div class="error-messages">
+      <ul>
+        <% court.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

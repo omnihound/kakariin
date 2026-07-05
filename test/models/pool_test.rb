@@ -58,6 +58,15 @@ class PoolTest < ActiveSupport::TestCase
     assert_raises(ArgumentError) { Pool.generate_for_division!(division, pool_count: 2, advancing_count: 1) }
   end
 
+  test "court is nil before the pool's matches are generated" do
+    assert_nil pools(:pool_b).court
+  end
+
+  test "court returns the shared court once the pool's matches are assigned" do
+    matches(:pool_a_r1_completed).update!(court: courts(:court_1))
+    assert_equal courts(:court_1), pools(:pool_a).court
+  end
+
   test "preferred_pool_count favors pools of 3, using 4 only for the remainder" do
     assert_equal 1, Pool.preferred_pool_count(1)
     assert_equal 1, Pool.preferred_pool_count(3)

@@ -185,7 +185,7 @@ td a { font-weight: 600; }
 .pools-table-header,
 .pool-row summary {
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr 2fr 1.2rem;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 2fr 1.2rem;
   align-items: center;
   gap: .9rem;
   padding: .7rem .9rem;
@@ -659,7 +659,7 @@ turbo-frame#modal:not(:empty) {
 
 .bracket-score { flex-shrink: 0; font-weight: 700; font-size: .9rem; font-family: var(--num); }
 
-.bracket-live-tag, .bracket-adv-tag { font-size: .65rem; font-weight: 700; padding: .1rem .4rem; border-radius: var(--pill); letter-spacing: .04em; }
+.bracket-live-tag, .bracket-adv-tag, .bracket-court-tag { font-size: .65rem; font-weight: 700; padding: .1rem .4rem; border-radius: var(--pill); letter-spacing: .04em; }
 .bracket-live-tag {
   display: block;
   width: fit-content;
@@ -669,6 +669,13 @@ turbo-frame#modal:not(:empty) {
   text-transform: uppercase;
 }
 .bracket-adv-tag { flex-shrink: 0; color: var(--ok); background: var(--ok-soft); }
+.bracket-court-tag {
+  display: block;
+  width: fit-content;
+  margin-bottom: .4rem;
+  color: var(--muted);
+  background: var(--surface);
+}
 
 .bracket-score-link {
   display: block;

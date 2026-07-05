@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_041231) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,6 +47,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
     t.index ["user_id"], name: "index_competitors_on_user_id", unique: true
   end
 
+  create_table "courts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "tournament_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tournament_id", "name"], name: "index_courts_on_tournament_id_and_name", unique: true
+    t.index ["tournament_id"], name: "index_courts_on_tournament_id"
+  end
+
   create_table "divisions", force: :cascade do |t|
     t.string "competition_type", null: false
     t.datetime "created_at", null: false
@@ -78,12 +87,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
     t.integer "away_score", default: 0, null: false
     t.string "away_type"
     t.datetime "completed_at"
+    t.bigint "court_id"
     t.datetime "created_at", null: false
     t.bigint "division_id", null: false
     t.bigint "home_id", null: false
     t.integer "home_score", default: 0, null: false
     t.string "home_type", null: false
-    t.integer "mat_number"
     t.bigint "pool_id"
     t.integer "round", null: false
     t.datetime "scheduled_at"
@@ -92,6 +101,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
     t.bigint "winner_id"
     t.string "winner_type"
     t.index ["away_type", "away_id"], name: "index_matches_on_away_type_and_away_id"
+    t.index ["court_id"], name: "index_matches_on_court_id"
     t.index ["division_id", "round"], name: "index_matches_on_division_id_and_round"
     t.index ["division_id"], name: "index_matches_on_division_id"
     t.index ["home_type", "home_id"], name: "index_matches_on_home_type_and_home_id"
@@ -189,8 +199,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_20_000005) do
   add_foreign_key "bouts", "competitors", column: "winner_id"
   add_foreign_key "bouts", "matches"
   add_foreign_key "competitors", "users"
+  add_foreign_key "courts", "tournaments"
   add_foreign_key "divisions", "tournaments"
   add_foreign_key "ippons", "competitors"
+  add_foreign_key "matches", "courts"
   add_foreign_key "matches", "divisions"
   add_foreign_key "matches", "pools"
   add_foreign_key "pool_registrations", "competitors"

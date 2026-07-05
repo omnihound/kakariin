@@ -92,4 +92,25 @@ class TournamentDriverTest < ActiveSupport::TestCase
     assert_equal "bye", match.status
     assert_nil match.away
   end
+
+  test "build_match assigns courts round-robin across the tournament's courts" do
+    division = Division.create!(tournament: tournaments(:states), name: "Court Division",
+                                 competition_type: "individual", format: "single_elimination")
+    driver = TournamentDriver.new(division)
+    match1 = driver.build_match(competitors(:hiroshi), competitors(:sarah))
+    match2 = driver.build_match(competitors(:james), competitors(:yuki))
+    match3 = driver.build_match(competitors(:tom), competitors(:aiko))
+
+    assert_equal courts(:court_1), match1.court
+    assert_equal courts(:court_2), match2.court
+    assert_equal courts(:court_1), match3.court
+  end
+
+  test "build_match leaves court nil for byes" do
+    division = Division.create!(tournament: tournaments(:states), name: "Bye Court Division",
+                                 competition_type: "individual", format: "single_elimination")
+    driver = TournamentDriver.new(division)
+    match = driver.build_match(competitors(:hiroshi), nil)
+    assert_nil match.court
+  end
 end

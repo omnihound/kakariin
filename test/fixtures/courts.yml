@@ -1,0 +1,7 @@
+court_1:
+  tournament: states
+  name: Court 1
+
+court_2:
+  tournament: states
+  name: Court 2

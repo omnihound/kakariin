@@ -32,7 +32,7 @@ class MatchesController < ApplicationController
   end
 
   def match_result_params
-    permitted = params.require(:match).permit(:home_score, :away_score, :mat_number, :scheduled_at, :status)
+    permitted = params.require(:match).permit(:home_score, :away_score, :court_id, :scheduled_at, :status)
     @match.division.team? ? permitted.except(:home_score, :away_score) : permitted
   end
 end

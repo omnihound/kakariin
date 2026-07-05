@@ -185,8 +185,8 @@
   <% end %>
 
   <div class="field">
-    <%= form.label :mat_number %>
-    <%= form.number_field :mat_number, min: 1 %>
+    <%= form.label :court_id, "Court" %>
+    <%= form.collection_select :court_id, @match.division.tournament.courts.order(:name), :id, :name, { include_blank: "No court" } %>
   </div>
 
   <div class="field">

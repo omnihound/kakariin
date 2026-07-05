@@ -1,6 +1,7 @@
 class Match < ApplicationRecord
   belongs_to :division
   belongs_to :pool, optional: true  # set for pool-stage matches; nil for playoff matches
+  belongs_to :court, optional: true
   belongs_to :home, polymorphic: true
   belongs_to :away, polymorphic: true, optional: true
   belongs_to :winner, polymorphic: true, optional: true

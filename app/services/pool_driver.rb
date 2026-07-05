@@ -44,11 +44,24 @@ class PoolDriver < TournamentSystem::Driver
       round: build_round,
       home: home_team,
       away: away_team,
-      status: away_team.nil? ? "bye" : "pending"
+      status: away_team.nil? ? "bye" : "pending",
+      court: away_team.nil? ? nil : court
     )
   end
 
   private
+
+  # A pool's whole round-robin plays on one court so competitors in that pool
+  # aren't shuffled between courts mid-pool. Different pools spread across the
+  # tournament's courts by their position among the division's pools.
+  def court
+    @court ||= begin
+      courts = @pool.division.tournament.courts.order(:name).to_a
+      return nil if courts.empty?
+      pools = @pool.division.pools.order(:name).to_a
+      courts[pools.index(@pool) % courts.size]
+    end
+  end
 
   def build_round
     @build_round ||= begin

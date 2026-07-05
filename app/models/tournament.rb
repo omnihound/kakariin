@@ -1,5 +1,6 @@
 class Tournament < ApplicationRecord
   has_many :divisions, dependent: :destroy
+  has_many :courts, dependent: :destroy
 
   STATUSES = %w[draft registration_open in_progress completed cancelled].freeze
 

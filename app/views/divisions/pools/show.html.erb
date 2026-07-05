@@ -2,7 +2,12 @@
 
 <h1><%= @pool.name %> <span class="tag"><%= @pool.status %></span></h1>
 
-<p class="muted">Top <%= @pool.advancing_count %> advance to the playoff bracket</p>
+<p class="muted">
+  Top <%= @pool.advancing_count %> advance to the playoff bracket
+  <% if @pool.court %>
+    · Playing on <%= @pool.court.name %>
+  <% end %>
+</p>
 
 <p>
   <%= link_to "Edit", edit_pool_path(@pool) %>
@@ -65,6 +70,7 @@
         <th>Home</th>
         <th>Away</th>
         <th>Score</th>
+        <th>Court</th>
         <th>Status</th>
         <th>Winner</th>
         <th></th>
@@ -76,6 +82,7 @@
           <td><%= participant_name(match.home) %></td>
           <td><%= participant_name(match.away) %></td>
           <td><%= match.home_score %> – <%= match.away_score %></td>
+          <td><%= match.court&.name || "—" %></td>
           <td><span class="tag"><%= match.status %></span></td>
           <td>
             <% if match.winner %>

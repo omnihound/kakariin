@@ -15,8 +15,8 @@
     <th>Score</th>
     <td><%= @match.home_score %> – <%= @match.away_score %></td>
   </tr>
-  <% if @match.mat_number %>
-    <tr><th>Mat</th><td><%= @match.mat_number %></td></tr>
+  <% if @match.court %>
+    <tr><th>Court</th><td><%= @match.court.name %></td></tr>
   <% end %>
   <% if @match.scheduled_at %>
     <tr><th>Scheduled</th><td><%= @match.scheduled_at %></td></tr>
