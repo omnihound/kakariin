@@ -689,8 +689,8 @@ turbo-frame#modal:not(:empty) {
 .bracket-match-ghost { background: var(--surface-2); border-style: dashed; opacity: .85; }
 .bracket-placeholder { font-style: italic; color: var(--faint); }
 
-.bracket-cell.bracket-ghost.elbow-down::after,
-.bracket-cell.bracket-ghost.elbow-up::after { border-style: dashed; }
+.bracket-cell.bracket-ghost.elbow-down::after { border-right-style: dashed; border-top-style: dashed; }
+.bracket-cell.bracket-ghost.elbow-up::after   { border-right-style: dashed; border-bottom-style: dashed; }
 .bracket-cell.bracket-ghost.bracket-entry::before { border-style: dashed; border-color: var(--line); }
 
 /* =============================================================================
