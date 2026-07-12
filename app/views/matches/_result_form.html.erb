@@ -1,0 +1,40 @@
+<% scorer_params = local_assigns[:court_scorer] ? { court_scorer: true } : {} %>
+
+<h2>Match details</h2>
+
+<%= form_with model: match, url: match_path(match, **scorer_params) do |form| %>
+  <% if match.division.individual? %>
+    <div class="field">
+      <label>Winner</label><br>
+      <label>
+        <input type="radio" name="match[winner_position]" value="home" <%= "checked" if match.winner == match.home %>>
+        <%= participant_name(match.home) %>
+      </label>
+      <% if match.away %>
+        <label>
+          <input type="radio" name="match[winner_position]" value="away" <%= "checked" if match.winner == match.away %>>
+          <%= participant_name(match.away) %>
+        </label>
+      <% end %>
+    </div>
+
+    <div class="field">
+      <%= form.label :status %>
+      <%= form.select :status, Match.statuses.keys %>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :court_id, "Court" %>
+    <%= form.collection_select :court_id, match.division.tournament.courts.order(:name), :id, :name, { include_blank: "No court" } %>
+  </div>
+
+  <div class="field">
+    <%= form.label :scheduled_at %>
+    <%= form.datetime_field :scheduled_at %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Save" %>
+  </div>
+<% end %>

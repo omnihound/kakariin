@@ -1,0 +1,24 @@
+<p><%= link_to "← #{@court.name} board", @court %></p>
+
+<h1><%= @court.name %> — Scorer</h1>
+
+<% if @match.nil? %>
+  <p class="muted">No matches queued for this court.</p>
+<% else %>
+  <p class="muted">
+    Round <%= @match.round %> · <%= link_to @match.division.name, @match.division %>
+  </p>
+
+  <% if @match.pending? %>
+    <h2><%= participant_name(@match.home) %> vs <%= participant_name(@match.away) %></h2>
+    <%= button_to "Start match", start_court_scorer_path(@court), method: :post %>
+  <% else %>
+    <% if @match.division.individual? %>
+      <%= render "matches/individual_scoreboard", match: @match, court_scorer: true %>
+    <% else %>
+      <%= render "matches/team_scoreboard", match: @match, court_scorer: true %>
+    <% end %>
+
+    <%= render "matches/result_form", match: @match, court_scorer: true %>
+  <% end %>
+<% end %>

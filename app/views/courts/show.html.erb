@@ -1,0 +1,37 @@
+<p><%= link_to "← #{@court.tournament.name} courts", tournament_courts_path(@court.tournament) %></p>
+
+<h1><%= @court.name %></h1>
+
+<%= turbo_stream_from @court %>
+<%= render "board", court: @court %>
+
+<p>
+  <%= link_to "Edit", edit_court_path(@court) %>
+  <%= button_to "Delete", @court, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this court?" } } %>
+  · <%= link_to "Live scoreboard (public link)", live_court_path(@court) %>
+</p>
+
+<h2>Upcoming matches</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Round</th>
+      <th>Aka</th>
+      <th>Shiro</th>
+      <th>Division</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @court.matches.pending.order(:scheduled_at, :round, :id).each do |match| %>
+      <tr>
+        <td><%= match.round %></td>
+        <td><%= participant_name(match.home) %></td>
+        <td><%= participant_name(match.away) %></td>
+        <td><%= link_to match.division.name, match.division %></td>
+        <td><%= link_to "Score", edit_match_path(match) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

@@ -1,6 +1,9 @@
 require "test_helper"
+require "turbo/broadcastable/test_helper"
 
 class MatchTest < ActiveSupport::TestCase
+  include Turbo::Broadcastable::TestHelper
+
   test "recalculate_scores! sums ippons for individual divisions" do
     match = matches(:individual_r1)
     Ippon.create!(scoreable: match, competitor: match.home, technique: "men")
@@ -87,6 +90,65 @@ class MatchTest < ActiveSupport::TestCase
     match.winner = match.home
     assert_not match.valid?
     assert_includes match.errors[:winner], "must be blank"
+  end
+
+  test "a court can only have one match in progress at a time" do
+    court = courts(:court_1)
+    matches(:individual_r1).update!(court: court, status: "in_progress")
+
+    other = matches(:team_r1)
+    other.court = court
+    other.status = "in_progress"
+
+    assert_not other.valid?
+    assert_includes other.errors[:court], "already has a match in progress"
+  end
+
+  test "a second match can be in progress on different courts" do
+    matches(:individual_r1).update!(court: courts(:court_1), status: "in_progress")
+
+    other = matches(:team_r1)
+    other.court = courts(:court_2)
+    other.status = "in_progress"
+
+    assert other.valid?
+  end
+
+  test "a pool match broadcasts to its pool, not the division bracket" do
+    match = matches(:pool_a_r1_completed)
+
+    assert_turbo_stream_broadcasts pools(:pool_a) do
+      match.update!(home_score: 1)
+    end
+    assert_no_turbo_stream_broadcasts match.division do
+      match.update!(home_score: 2)
+    end
+  end
+
+  test "a playoff match broadcasts to the division bracket" do
+    match = matches(:individual_r1)
+
+    assert_turbo_stream_broadcasts match.division do
+      match.update!(home_score: 1)
+    end
+  end
+
+  test "a match assigned to a court broadcasts to the court board" do
+    match = matches(:individual_r1)
+    match.update!(court: courts(:court_1))
+
+    assert_turbo_stream_broadcasts courts(:court_1) do
+      match.update!(status: "in_progress")
+    end
+  end
+
+  test "a match with no court does not broadcast to any court" do
+    match = matches(:individual_r1)
+    assert_nil match.court
+
+    assert_no_turbo_stream_broadcasts courts(:court_1) do
+      match.update!(home_score: 1)
+    end
   end
 
   private

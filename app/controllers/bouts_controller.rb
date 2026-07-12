@@ -5,9 +5,9 @@ class BoutsController < ApplicationController
     bout = @match.bouts.build(bout_lineup_params)
     if bout.save
       @match.recalculate_team_result!
-      redirect_to edit_match_path(@match)
+      redirect_to redirect_target
     else
-      redirect_to edit_match_path(@match), alert: bout.errors.full_messages.to_sentence
+      redirect_to redirect_target, alert: bout.errors.full_messages.to_sentence
     end
   end
 
@@ -25,22 +25,28 @@ class BoutsController < ApplicationController
 
     if bout.update(bout_result_params)
       @match.recalculate_team_result!
-      redirect_to edit_match_path(@match), notice: "Bout updated."
+      redirect_to redirect_target, notice: "Bout updated."
     else
-      redirect_to edit_match_path(@match), alert: bout.errors.full_messages.to_sentence
+      redirect_to redirect_target, alert: bout.errors.full_messages.to_sentence
     end
   end
 
   def destroy
     @match.bouts.find(params[:id]).destroy
     @match.recalculate_team_result!
-    redirect_to edit_match_path(@match)
+    redirect_to redirect_target
   end
 
   private
 
   def set_match
     @match = Match.find(params[:match_id])
+  end
+
+  # Scoring UI opened from the court scorer screen stays there between
+  # matches instead of bouncing to the generic match page.
+  def redirect_target
+    params[:court_scorer].present? && @match.court ? court_scorer_path(@match.court) : edit_match_path(@match)
   end
 
   def bout_lineup_params

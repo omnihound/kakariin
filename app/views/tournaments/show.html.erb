@@ -10,6 +10,7 @@
 <p>
   <%= link_to "Edit", edit_tournament_path(@tournament) %>
   <%= button_to "Delete", @tournament, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this tournament and all its divisions?" } } %>
+  · <%= link_to "Live scoreboard", live_tournament_path(@tournament) %>
 </p>
 
 <h2>Divisions</h2>
@@ -39,6 +40,8 @@
 
 <h2>Courts</h2>
 
+<p><%= link_to "View court status board", tournament_courts_path(@tournament) %></p>
+
 <%= link_to "New court", new_tournament_court_path(@tournament) %>
 
 <table>
@@ -51,7 +54,7 @@
   <tbody>
     <% @courts.each do |court| %>
       <tr>
-        <td><%= court.name %></td>
+        <td><%= link_to court.name, court %></td>
         <td>
           <%= link_to "Edit", edit_court_path(court) %>
           <%= button_to "Delete", court, method: :delete, class: "inline", form: { data: { turbo_confirm: "Delete this court?" } } %>

@@ -1,0 +1,27 @@
+<div id="<%= dom_id(court, :board) %>" class="court-board">
+  <h3><%= link_to court.name, court %></h3>
+
+  <% if (match = court.current_match) %>
+    <p><span class="tag bracket-live-tag">Live</span> · <%= link_to match.division.name, match.division %></p>
+
+    <% if match.pool_id.present? %>
+      <% pool = match.pool %>
+      <h4><%= link_to pool.name, pool %> <span class="tag"><%= pool.status %></span></h4>
+      <%= render "divisions/pools/standings", pool: pool %>
+      <%= render "divisions/pools/matches_table", pool: pool, read_only: true %>
+    <% end %>
+
+    <% if match.division.individual? %>
+      <%= render "matches/individual_scoreboard", match: match, read_only: true %>
+    <% else %>
+      <%= render "matches/team_scoreboard", match: match, read_only: true %>
+    <% end %>
+  <% elsif (match = court.next_match) %>
+    <p class="muted">
+      Next: <%= participant_name(match.home) %> vs <%= participant_name(match.away) %>
+      · <%= link_to match.division.name, match.division %>
+    </p>
+  <% else %>
+    <p class="muted">No matches queued</p>
+  <% end %>
+</div>

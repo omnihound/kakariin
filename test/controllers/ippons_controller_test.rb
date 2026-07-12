@@ -35,6 +35,15 @@ class IpponsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, match.reload.home_score
   end
 
+  test "court_scorer param redirects back to the court scorer view instead of the match" do
+    match = matches(:individual_r1)
+    match.update!(court: courts(:court_1), status: "in_progress")
+
+    post match_ippons_path(match, court_scorer: true), params: { ippon: { competitor_id: match.home.id, technique: "men" } }
+
+    assert_redirected_to court_scorer_path(courts(:court_1))
+  end
+
   test "create adds an ippon to a bout and updates the bout's score, not the match's" do
     match = matches(:team_r1)
     bout = match.bouts.create!(position: 0, home_competitor: competitors(:hiroshi), away_competitor: competitors(:sarah))

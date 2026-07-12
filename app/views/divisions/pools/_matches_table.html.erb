@@ -1,0 +1,41 @@
+<% read_only = local_assigns[:read_only] || false %>
+
+<div id="<%= dom_id(pool, :matches) %>">
+  <table>
+    <thead>
+      <tr>
+        <th>Aka</th>
+        <th>Shiro</th>
+        <th>Score</th>
+        <th>Court</th>
+        <th>Status</th>
+        <th>Winner</th>
+        <% unless read_only %><th></th><% end %>
+      </tr>
+    </thead>
+    <tbody>
+      <% pool.pool_matches.where.not(status: :bye).order(:round, :id).each do |match| %>
+        <tr class="<%= "current-match-row" if match.in_progress? %>">
+          <td><span class="side-dot aka" title="Aka (red)"></span> <%= participant_name(match.home) %></td>
+          <td><span class="side-dot shiro" title="Shiro (white)"></span> <%= participant_name(match.away) %></td>
+          <td><%= match.home_score %> – <%= match.away_score %></td>
+          <td><%= match.court&.name || "—" %></td>
+          <td>
+            <span class="tag"><%= match.status %></span>
+            <% if match.in_progress? %><span class="tag bracket-live-tag">Live</span><% end %>
+          </td>
+          <td>
+            <% if match.winner %>
+              <strong><%= participant_name(match.winner) %></strong>
+            <% else %>
+              <span class="muted">—</span>
+            <% end %>
+          </td>
+          <% unless read_only %>
+            <td><%= link_to "Score", edit_match_path(match) %></td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,115 @@
+<%
+  read_only = local_assigns[:read_only] || false
+  scorer_params = local_assigns[:court_scorer] ? { court_scorer: true } : {}
+%>
+
+<div class="scoreboard team-scoreboard">
+  <div class="side aka">
+    <div class="side-tag">AKA</div>
+    <div class="competitor-name"><%= participant_name(match.home) %></div>
+    <div class="tally"><%= match.home_score %></div>
+  </div>
+  <div class="vs">bouts –</div>
+  <div class="side shiro">
+    <div class="side-tag">SHIRO</div>
+    <div class="competitor-name"><%= participant_name(match.away) %></div>
+    <div class="tally"><%= match.away_score %></div>
+  </div>
+</div>
+<p class="muted center">
+  <%= match.bouts.sum(&:home_score) %>–<%= match.bouts.sum(&:away_score) %> ippons
+  · <span class="tag"><%= match.status %></span>
+</p>
+
+<% if !read_only && !match.completed? && match.away %>
+  <p class="center">
+    <%= link_to "Set full lineup", edit_match_lineup_path(match), data: { turbo_frame: "modal" } %>
+    · <%= button_to "Finalize match", finalize_match_path(match, **scorer_params), method: :post, class: "inline", form: { data: { turbo_confirm: "Lock in the result from the bouts entered so far?" } } %>
+  </p>
+<% end %>
+
+<table class="bout-ladder">
+  <thead>
+    <tr>
+      <th>Position</th>
+      <th><%= participant_name(match.home) %></th>
+      <th><%= participant_name(match.away) %></th>
+      <th>Score</th>
+      <th>Status</th>
+      <% unless read_only %><th></th><% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% match.bouts.order(:position).each do |bout| %>
+      <tr>
+        <td><%= bout.position_label %></td>
+        <td>
+          <%= bout.home_competitor.full_name %>
+          <div class="marks">
+            <% bout.ippons.where(competitor: bout.home_competitor).order(:created_at).each do |ippon| %>
+              <span class="mark mark-<%= ippon.technique %>">
+                <%= ippon_mark(ippon) %>
+                <% unless read_only %>
+                  <%= button_to "×", match_bout_ippon_path(match, bout, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
+                <% end %>
+              </span>
+            <% end %>
+          </div>
+          <% unless read_only %>
+            <div class="ippon-buttons"><%= ippon_buttons(match_bout_ippons_path(match, bout, **scorer_params), bout.home_competitor_id) %></div>
+          <% end %>
+        </td>
+        <td>
+          <% if bout.away_competitor %>
+            <%= bout.away_competitor.full_name %>
+            <div class="marks">
+              <% bout.ippons.where(competitor: bout.away_competitor).order(:created_at).each do |ippon| %>
+                <span class="mark mark-<%= ippon.technique %>">
+                  <%= ippon_mark(ippon) %>
+                  <% unless read_only %>
+                    <%= button_to "×", match_bout_ippon_path(match, bout, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
+                  <% end %>
+                </span>
+              <% end %>
+            </div>
+            <% unless read_only %>
+              <div class="ippon-buttons"><%= ippon_buttons(match_bout_ippons_path(match, bout, **scorer_params), bout.away_competitor_id) %></div>
+            <% end %>
+          <% else %>
+            <span class="muted">forfeit</span>
+          <% end %>
+        </td>
+        <td class="bout-result">
+          <strong><%= bout.home_score %>–<%= bout.away_score %></strong>
+          <% if bout.winner == bout.home_competitor %>
+            ▲
+          <% elsif bout.away_competitor && bout.winner == bout.away_competitor %>
+            ▼
+          <% elsif bout.completed? %>
+            –
+          <% end %>
+        </td>
+        <td><span class="tag"><%= bout.status %></span></td>
+        <% unless read_only %>
+          <td><%= button_to "Remove", match_bout_path(match, bout, **scorer_params), method: :delete, class: "inline" %></td>
+        <% end %>
+      </tr>
+      <% unless read_only %>
+        <tr class="bout-winner-row">
+          <td></td>
+          <td colspan="5">
+            <%= form_with url: match_bout_path(match, bout, **scorer_params), method: :patch, scope: :bout, class: "inline" do |f| %>
+              <label><input type="radio" name="bout[winner_position]" value="home" <%= "checked" if bout.winner == bout.home_competitor %>> Home wins</label>
+              <% if bout.away_competitor %>
+                <label><input type="radio" name="bout[winner_position]" value="away" <%= "checked" if bout.winner == bout.away_competitor %>> Away wins</label>
+                <label><input type="radio" name="bout[winner_position]" value="draw" <%= "checked" if bout.completed? && bout.winner.nil? %>> Hikiwake (draw)</label>
+              <% end %>
+              <%= f.select :status, Bout.statuses.keys, selected: bout.status %>
+              <%= f.submit "Save" %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>

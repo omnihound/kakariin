@@ -1,0 +1,56 @@
+<%
+  read_only = local_assigns[:read_only] || false
+  scorer_params = local_assigns[:court_scorer] ? { court_scorer: true } : {}
+  home_ippons = match.ippons.order(:created_at).select { |i| i.competitor_id == match.home.id }
+  away_ippons = match.away ? match.ippons.order(:created_at).select { |i| i.competitor_id == match.away.id } : []
+%>
+
+<div class="scoreboard">
+  <div class="side aka">
+    <div class="side-tag">AKA</div>
+    <div class="competitor-name"><%= participant_name(match.home) %></div>
+    <div class="tally"><%= match.home_score %></div>
+    <div class="marks">
+      <% home_ippons.each do |ippon| %>
+        <span class="mark mark-<%= ippon.technique %>">
+          <%= ippon_mark(ippon) %>
+          <% unless read_only %>
+            <%= button_to "×", match_ippon_path(match, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
+          <% end %>
+        </span>
+      <% end %>
+    </div>
+    <% unless read_only %>
+      <div class="ippon-buttons"><%= ippon_buttons(match_ippons_path(match, **scorer_params), match.home.id) %></div>
+    <% end %>
+  </div>
+
+  <div class="vs">–</div>
+
+  <div class="side shiro">
+    <div class="side-tag">SHIRO</div>
+    <div class="competitor-name"><%= participant_name(match.away) %></div>
+    <div class="tally"><%= match.away_score %></div>
+    <div class="marks">
+      <% away_ippons.each do |ippon| %>
+        <span class="mark mark-<%= ippon.technique %>">
+          <%= ippon_mark(ippon) %>
+          <% unless read_only %>
+            <%= button_to "×", match_ippon_path(match, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
+          <% end %>
+        </span>
+      <% end %>
+    </div>
+    <% if match.away && !read_only %>
+      <div class="ippon-buttons"><%= ippon_buttons(match_ippons_path(match, **scorer_params), match.away.id) %></div>
+    <% end %>
+  </div>
+</div>
+
+<% if match.winner %>
+  <p class="result-line">
+    <strong><%= participant_name(match.winner) %></strong> wins
+    <% techniques = winning_techniques_label(match.ippons, match.winner) %>
+    <%= "· #{techniques}" if techniques.present? %>
+  </p>
+<% end %>

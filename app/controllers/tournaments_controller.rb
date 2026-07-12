@@ -1,5 +1,7 @@
 class TournamentsController < ApplicationController
-  before_action :set_tournament, only: [ :show, :edit, :update, :destroy ]
+  allow_unauthenticated_access only: :live
+
+  before_action :set_tournament, only: [ :show, :live, :edit, :update, :destroy ]
 
   def index
     @tournaments = Tournament.order(start_date: :desc)
@@ -7,6 +9,12 @@ class TournamentsController < ApplicationController
 
   def show
     @divisions = @tournament.divisions.order(:name)
+    @courts = @tournament.courts.order(:name)
+  end
+
+  # Public, no-login scoreboard for spectators/venue screens — read-only,
+  # updates live via the same Turbo Streams the court board broadcasts to.
+  def live
     @courts = @tournament.courts.order(:name)
   end
 

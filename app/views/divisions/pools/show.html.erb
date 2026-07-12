@@ -62,35 +62,5 @@
 
 <h2>Matches</h2>
 
-<table>
-  <thead>
-    <tr>
-      <th>Aka</th>
-      <th>Shiro</th>
-      <th>Score</th>
-      <th>Court</th>
-      <th>Status</th>
-      <th>Winner</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @pool.pool_matches.where.not(status: :bye).order(:round, :id).each do |match| %>
-      <tr>
-        <td><span class="side-dot aka" title="Aka (red)"></span> <%= participant_name(match.home) %></td>
-        <td><span class="side-dot shiro" title="Shiro (white)"></span> <%= participant_name(match.away) %></td>
-        <td><%= match.home_score %> – <%= match.away_score %></td>
-        <td><%= match.court&.name || "—" %></td>
-        <td><span class="tag"><%= match.status %></span></td>
-        <td>
-          <% if match.winner %>
-            <strong><%= participant_name(match.winner) %></strong>
-          <% else %>
-            <span class="muted">—</span>
-          <% end %>
-        </td>
-        <td><%= link_to "Score", edit_match_path(match) %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+<%= turbo_stream_from @pool %>
+<%= render "matches_table", pool: @pool %>

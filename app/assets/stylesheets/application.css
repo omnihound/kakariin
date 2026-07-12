@@ -540,6 +540,9 @@ turbo-frame#modal:not(:empty) {
 .cross-table tr.advances td { border-color: #d5efe0; }
 .cross-table .mark { font-size: .78rem; }
 
+tr.current-match-row { background: var(--aka-soft); }
+tr.current-match-row td { border-color: var(--aka-line); }
+
 .side-dot {
   display: inline-block;
   width: .5rem;

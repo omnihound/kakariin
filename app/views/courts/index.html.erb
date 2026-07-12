@@ -1,0 +1,10 @@
+<p><%= link_to "← #{@tournament.name}", @tournament %></p>
+
+<h1>Courts</h1>
+
+<p><%= link_to "New court", new_tournament_court_path(@tournament) %></p>
+
+<% @courts.each do |court| %>
+  <%= turbo_stream_from court %>
+  <%= render "board", court: court %>
+<% end %>

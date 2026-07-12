@@ -5,16 +5,16 @@ class IpponsController < ApplicationController
     ippon = @scoreable.ippons.build(ippon_params)
     if ippon.save
       recalculate!
-      redirect_to edit_match_path(@match)
+      redirect_to redirect_target
     else
-      redirect_to edit_match_path(@match), alert: ippon.errors.full_messages.to_sentence
+      redirect_to redirect_target, alert: ippon.errors.full_messages.to_sentence
     end
   end
 
   def destroy
     @scoreable.ippons.find(params[:id]).destroy
     recalculate!
-    redirect_to edit_match_path(@match)
+    redirect_to redirect_target
   end
 
   private
@@ -22,6 +22,12 @@ class IpponsController < ApplicationController
   def set_scoreable
     @match = Match.find(params[:match_id])
     @scoreable = params[:bout_id].present? ? @match.bouts.find(params[:bout_id]) : @match
+  end
+
+  # Scoring UI opened from the court scorer screen stays there between
+  # matches instead of bouncing to the generic match page.
+  def redirect_target
+    params[:court_scorer].present? && @match.court ? court_scorer_path(@match.court) : edit_match_path(@match)
   end
 
   def recalculate!

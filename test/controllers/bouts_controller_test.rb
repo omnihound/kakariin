@@ -43,6 +43,17 @@ class BoutsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 1, match.home_score
   end
 
+  test "court_scorer param redirects back to the court scorer view instead of the match" do
+    match = matches(:team_r1)
+    match.update!(court: courts(:court_1))
+
+    post match_bouts_path(match, court_scorer: true), params: {
+      bout: { position: 0, home_competitor_id: competitors(:hiroshi).id, away_competitor_id: competitors(:sarah).id }
+    }
+
+    assert_redirected_to court_scorer_path(courts(:court_1))
+  end
+
   test "destroy removes a bout and recalculates the match tally" do
     match = matches(:team_r1)
     bout = match.bouts.create!(position: 0, home_competitor: competitors(:hiroshi), away_competitor: competitors(:sarah),

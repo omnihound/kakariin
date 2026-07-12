@@ -14,8 +14,9 @@ class Match < ApplicationRecord
   validates :round, presence: true, numericality: { only_integer: true, greater_than: 0 }
   validates :home_score, :away_score, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :winner, absence: true, unless: :completed?
+  validate :court_not_already_in_progress, if: -> { court_id.present? && in_progress? }
 
-  after_commit :broadcast_bracket_update, on: [ :create, :update ]
+  after_commit :broadcast_live_updates, on: [ :create, :update ]
 
   # Sync cached ippon totals from ippons (individual divisions only).
   def recalculate_scores!
@@ -67,16 +68,38 @@ class Match < ApplicationRecord
             status: "completed", completed_at: Time.current)
   end
 
+  # Pushes the latest score/status out to whoever's watching this match live:
+  # the pool's matches table, the division bracket, and the court board all
+  # key off it, so a spectator or scorer never has to refresh to see a change
+  # made elsewhere. Public since Bout re-triggers it for ippon-by-ippon
+  # progress within a team match.
+  def broadcast_live_updates
+    if pool_id.present?
+      broadcast_replace_to pool,
+                            target: ActionView::RecordIdentifier.dom_id(pool, :matches),
+                            partial: "divisions/pools/matches_table",
+                            locals: { pool: pool }
+    elsif !division.round_robin?
+      broadcast_replace_to division,
+                            target: ActionView::RecordIdentifier.dom_id(division, :bracket),
+                            partial: "divisions/bracket",
+                            locals: { division: division, matches: division.matches.where(pool_id: nil).order(:round, :id) }
+    end
+
+    return unless court_id.present?
+    broadcast_replace_to court,
+                          target: ActionView::RecordIdentifier.dom_id(court, :board),
+                          partial: "courts/board",
+                          locals: { court: court }
+  end
+
   private
 
-  # Keeps the bracket diagram live for anyone viewing the division page
-  # while a match elsewhere is being scored or a new round is generated.
-  # Pool-stage matches are shown on the pool's own page, not the bracket.
-  def broadcast_bracket_update
-    return if division.round_robin? || pool_id.present?
-    broadcast_replace_to division,
-                          target: ActionView::RecordIdentifier.dom_id(division, :bracket),
-                          partial: "divisions/bracket",
-                          locals: { division: division, matches: division.matches.where(pool_id: nil).order(:round, :id) }
+  # Keeps "the active match for this court" unambiguous for the court status
+  # board and scorer view.
+  def court_not_already_in_progress
+    if court.matches.in_progress.where.not(id: id).exists?
+      errors.add(:court, "already has a match in progress")
+    end
   end
 end

@@ -1,6 +1,18 @@
 class CourtsController < ApplicationController
-  before_action :set_tournament, only: [ :new, :create ]
-  before_action :set_court, only: [ :edit, :update, :destroy ]
+  allow_unauthenticated_access only: :live
+
+  before_action :set_tournament, only: [ :index, :new, :create ]
+  before_action :set_court, only: [ :show, :live, :edit, :update, :destroy ]
+
+  def index
+    @courts = @tournament.courts.order(:name)
+  end
+
+  def show; end
+
+  # Public, no-login single-court scoreboard for a venue screen at that
+  # ring — same read-only board as tournaments#live, just scoped to one court.
+  def live; end
 
   def new
     @court = @tournament.courts.build

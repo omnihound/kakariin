@@ -1,0 +1,15 @@
+<h1><%= @tournament.name %> — Live</h1>
+
+<p class="muted">
+  <%= @tournament.location %>
+  · <%= @tournament.start_date %><% if @tournament.end_date %> – <%= @tournament.end_date %><% end %>
+</p>
+
+<% if @courts.empty? %>
+  <p class="muted">No courts set up for this tournament yet.</p>
+<% else %>
+  <% @courts.each do |court| %>
+    <%= turbo_stream_from court %>
+    <%= render "courts/board", court: court %>
+  <% end %>
+<% end %>

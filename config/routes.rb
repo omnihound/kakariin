@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :competitors
 
   resources :tournaments do
+    member { get :live }
     resources :divisions, shallow: true do
       scope module: :divisions do
         resource :bracket, only: :create, controller: "bracket"
@@ -18,7 +19,12 @@ Rails.application.routes.draw do
         end
       end
     end
-    resources :courts, shallow: true, only: [ :new, :create, :edit, :update, :destroy ]
+    resources :courts, shallow: true, only: [ :index, :new, :create, :show, :edit, :update, :destroy ] do
+      member { get :live }
+      resource :scorer, only: :show, controller: "court_scorer" do
+        post :start
+      end
+    end
   end
 
   resources :team_entries, only: [] do

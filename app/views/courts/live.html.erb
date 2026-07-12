@@ -1,0 +1,6 @@
+<h1><%= @court.name %> — Live</h1>
+
+<p class="muted"><%= @court.tournament.name %></p>
+
+<%= turbo_stream_from @court %>
+<%= render "board", court: @court %>
