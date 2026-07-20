@@ -32,11 +32,15 @@
         <div class="bracket-cell <%= elbow_class %> <%= entry_class %> <%= "winner-locked" if winner_locked %>"
              style="grid-column: <%= round_index + 1 %>; grid-row: <%= row_start %> / span <%= span %>;">
           <div id="<%= dom_id(match) %>" class="bracket-match <%= "winner-locked" if winner_locked %>">
-            <% if match.court %>
-              <span class="tag bracket-court-tag"><%= match.court.name %></span>
-            <% end %>
-            <% if match.in_progress? %>
-              <span class="tag bracket-live-tag">Live</span>
+            <% if match.court || match.in_progress? %>
+              <div class="bracket-tags">
+                <% if match.court %>
+                  <span class="tag bracket-court-tag"><%= match.court.name %></span>
+                <% end %>
+                <% if match.in_progress? %>
+                  <span class="tag bracket-live-tag">Live</span>
+                <% end %>
+              </div>
             <% end %>
             <div class="bracket-slot aka <%= "won" if match.winner && match.winner == match.home %>" title="Aka (red)">
               <span class="bracket-slot-name">
