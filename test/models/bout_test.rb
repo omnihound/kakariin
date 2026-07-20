@@ -69,4 +69,15 @@ class BoutTest < ActiveSupport::TestCase
     assert_equal 2, bout.home_score
     assert_equal 1, bout.away_score
   end
+
+  test "recalculate_score! awards an ippon for every 2 hansoku conceded" do
+    bout = matches(:team_r1).bouts.create!(position: 0, home_competitor: competitors(:hiroshi), away_competitor: competitors(:sarah))
+    Ippon.create!(scoreable: bout, competitor: competitors(:hiroshi), technique: "hansoku")
+    Ippon.create!(scoreable: bout, competitor: competitors(:hiroshi), technique: "hansoku")
+
+    bout.recalculate_score!
+
+    assert_equal 0, bout.home_score
+    assert_equal 1, bout.away_score
+  end
 end

@@ -1,0 +1,10 @@
+<div class="hansoku-stack">
+  <% fouls.each do |ippon| %>
+    <% if read_only %>
+      <span class="hansoku-triangle" title="Hansoku"></span>
+    <% else %>
+      <%= button_to "", match_ippon_path(match, ippon, **scorer_params), method: :delete,
+                    class: "hansoku-triangle", title: "Hansoku — click to remove" %>
+    <% end %>
+  <% end %>
+</div>

@@ -3,23 +3,18 @@
   scorer_params = local_assigns[:court_scorer] ? { court_scorer: true } : {}
   home_ippons = match.ippons.order(:created_at).select { |i| i.competitor_id == match.home.id }
   away_ippons = match.away ? match.ippons.order(:created_at).select { |i| i.competitor_id == match.away.id } : []
+  home_marks = scoreboard_marks(home_ippons, away_ippons)
+  away_marks = scoreboard_marks(away_ippons, home_ippons)
+  home_hansoku = home_ippons.select(&:hansoku?)
+  away_hansoku = away_ippons.select(&:hansoku?)
 %>
 
-<div class="scoreboard">
+<div class="scoreboard individual-scoreboard">
   <div class="side aka">
+    <%= render "matches/hansoku_stack", fouls: home_hansoku, match: match, read_only: read_only, scorer_params: scorer_params %>
     <div class="side-tag">AKA</div>
     <div class="competitor-name"><%= participant_name(match.home) %></div>
-    <div class="tally"><%= match.home_score %></div>
-    <div class="marks">
-      <% home_ippons.each do |ippon| %>
-        <span class="mark mark-<%= ippon.technique %>">
-          <%= ippon_mark(ippon) %>
-          <% unless read_only %>
-            <%= button_to "×", match_ippon_path(match, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
-          <% end %>
-        </span>
-      <% end %>
-    </div>
+    <%= render "matches/marks", marks: home_marks, match: match, read_only: read_only, scorer_params: scorer_params %>
     <% unless read_only %>
       <div class="ippon-buttons"><%= ippon_buttons(match_ippons_path(match, **scorer_params), match.home.id) %></div>
     <% end %>
@@ -28,19 +23,10 @@
   <div class="vs">–</div>
 
   <div class="side shiro">
+    <%= render "matches/hansoku_stack", fouls: away_hansoku, match: match, read_only: read_only, scorer_params: scorer_params %>
     <div class="side-tag">SHIRO</div>
     <div class="competitor-name"><%= participant_name(match.away) %></div>
-    <div class="tally"><%= match.away_score %></div>
-    <div class="marks">
-      <% away_ippons.each do |ippon| %>
-        <span class="mark mark-<%= ippon.technique %>">
-          <%= ippon_mark(ippon) %>
-          <% unless read_only %>
-            <%= button_to "×", match_ippon_path(match, ippon, **scorer_params), method: :delete, class: "mark-remove" %>
-          <% end %>
-        </span>
-      <% end %>
-    </div>
+    <%= render "matches/marks", marks: away_marks, match: match, read_only: read_only, scorer_params: scorer_params %>
     <% if match.away && !read_only %>
       <div class="ippon-buttons"><%= ippon_buttons(match_ippons_path(match, **scorer_params), match.away.id) %></div>
     <% end %>

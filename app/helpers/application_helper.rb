@@ -42,9 +42,23 @@ module ApplicationHelper
     time ? "#{technique_mark(ippon.technique)} #{time}" : technique_mark(ippon.technique)
   end
 
-  # techniques a competitor scored within a scoreable, joined for a result summary line
+  # techniques a competitor scored within a scoreable, joined for a result summary line.
+  # Excludes hansoku: a foul recorded against the competitor isn't a point they scored.
   def winning_techniques_label(ippons, competitor)
-    ippons.select { |i| i.competitor_id == competitor.id }.map { |i| i.technique.capitalize }.join(" + ")
+    ippons.select { |i| i.competitor_id == competitor.id && !i.hansoku? }.map { |i| i.technique.capitalize }.join(" + ")
+  end
+
+  # Ordered marks to render for one side of an individual scoreboard: the
+  # competitor's own scoring strikes (hansoku fouls are shown separately as
+  # the hansoku triangle stack, not as marks here) plus a point mark each
+  # time the opponent's hansoku fouls complete a pair (2 hansoku = 1 ippon
+  # awarded here).
+  def scoreboard_marks(own_ippons, opponent_ippons)
+    strikes = own_ippons.reject(&:hansoku?)
+    awarded_points = opponent_ippons.select(&:hansoku?).each_slice(2).select { |pair| pair.size == 2 }
+                                     .map { |pair| { hansoku_point: true, at: pair.last.created_at } }
+    (strikes.map { |ippon| { ippon: ippon, at: ippon.created_at } } + awarded_points)
+      .sort_by { |mark| mark[:at] }
   end
 
   # One tap-to-score button per technique, used identically for individual

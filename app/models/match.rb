@@ -18,12 +18,16 @@ class Match < ApplicationRecord
 
   after_commit :broadcast_live_updates, on: [ :create, :update ]
 
-  # Sync cached ippon totals from ippons (individual divisions only).
+  # Sync cached ippon totals from ippons (individual divisions only). Hansoku
+  # fouls aren't points on their own: every 2 hansoku conceded by a
+  # competitor award one ippon to their opponent.
   def recalculate_scores!
     return unless division.individual?
+    home_ippons = ippons.where(competitor: home)
+    away_ippons = ippons.where(competitor: away)
     update!(
-      home_score: ippons.where(competitor: home).count,
-      away_score: ippons.where(competitor: away).count
+      home_score: home_ippons.where.not(technique: "hansoku").count + away_ippons.hansoku.count / 2,
+      away_score: away_ippons.where.not(technique: "hansoku").count + home_ippons.hansoku.count / 2
     )
   end
 

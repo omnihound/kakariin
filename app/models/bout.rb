@@ -28,10 +28,14 @@ class Bout < ApplicationRecord
 
   # Sync cached ippon totals from ippons. Winner is still set manually (via
   # winner_position), since kendo bouts can end 1-0 on time or hikiwake.
+  # Hansoku fouls aren't points on their own: every 2 hansoku conceded by a
+  # competitor award one ippon to their opponent.
   def recalculate_score!
+    home_ippons = ippons.where(competitor: home_competitor)
+    away_ippons = ippons.where(competitor: away_competitor)
     update!(
-      home_score: ippons.where(competitor: home_competitor).count,
-      away_score: ippons.where(competitor: away_competitor).count
+      home_score: home_ippons.where.not(technique: "hansoku").count + away_ippons.hansoku.count / 2,
+      away_score: away_ippons.where.not(technique: "hansoku").count + home_ippons.hansoku.count / 2
     )
   end
 

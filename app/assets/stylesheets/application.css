@@ -360,6 +360,7 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
 
 .scoreboard .side {
   flex: 1;
+  position: relative;
   border: 1.5px solid var(--line);
   border-radius: 16px;
   padding: 1.1rem 1rem;
@@ -410,6 +411,12 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
   min-height: 1.7em;
 }
 
+.individual-scoreboard .marks {
+  gap: .75rem;
+  margin-top: 1.3rem;
+  min-height: 2.6em;
+}
+
 .result-line {
   text-align: center;
   font-size: 1.05rem;
@@ -425,7 +432,7 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
   gap: .15rem;
   background: var(--surface);
   border-radius: var(--pill);
-  padding: .15rem .25rem .15rem .55rem;
+  padding: .15rem .4rem;
   font-size: .78rem;
   font-weight: 600;
   font-family: var(--mono);
@@ -437,6 +444,41 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
 .mark-dou   { background: #e2fde6; }
 .mark-tsuki { background: #fdf3e2; }
 .mark-hansoku { background: #ededed; }
+
+/* The point awarded to the opponent once hansoku fouls complete a pair. */
+.mark-hansoku-point { background: #ededed; }
+
+/* ---- Hansoku foul triangles (stacked at each side's outer edge) ----------- */
+/* Individual hansoku fouls are warnings, not points, so they're kept out of
+   the marks row entirely and shown as a stack of small triangles instead. */
+
+.hansoku-stack {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .3rem;
+}
+
+.side.aka   .hansoku-stack { left: .6rem; }
+.side.shiro .hansoku-stack { right: .6rem; }
+
+.hansoku-triangle {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 0;
+  height: 0;
+  border-left: .5rem solid transparent;
+  border-right: .5rem solid transparent;
+  border-bottom: .8rem solid #b5b5ba;
+}
+
+button.hansoku-triangle { cursor: pointer; }
+button.hansoku-triangle:hover { border-bottom-color: var(--ink); }
 
 .mark-remove {
   display: inline-flex;
@@ -454,6 +496,20 @@ input[type="submit"]:hover { background: var(--aka-ink); border-color: var(--aka
   line-height: 1;
 }
 .mark-remove:hover { background: #00000010; color: var(--ink); }
+
+/* Marks carry the score on their own here, so they stand in for the
+   tally that used to sit above them. */
+.individual-scoreboard .mark {
+  font-size: 2.03rem;
+  padding: .45rem 1.13rem;
+  gap: .45rem;
+}
+
+.individual-scoreboard .mark-remove {
+  width: 2.55rem;
+  height: 2.55rem;
+  font-size: 1.95rem;
+}
 
 /* ---- One-tap ippon entry --------------------------------------------------- */
 

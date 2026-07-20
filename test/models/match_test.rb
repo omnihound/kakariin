@@ -16,6 +16,20 @@ class MatchTest < ActiveSupport::TestCase
     assert_equal 1, match.away_score
   end
 
+  test "recalculate_scores! awards an ippon for every 2 hansoku conceded" do
+    match = matches(:individual_r1)
+    Ippon.create!(scoreable: match, competitor: match.home, technique: "men")
+    Ippon.create!(scoreable: match, competitor: match.away, technique: "hansoku")
+    Ippon.create!(scoreable: match, competitor: match.away, technique: "hansoku")
+    Ippon.create!(scoreable: match, competitor: match.away, technique: "hansoku")
+
+    match.recalculate_scores!
+
+    # home: 1 men + 1 ippon from away's 2nd hansoku (3rd hansoku doesn't pair yet)
+    assert_equal 2, match.home_score
+    assert_equal 0, match.away_score
+  end
+
   test "recalculate_scores! does nothing for team divisions" do
     match = matches(:team_r1)
     match.update!(home_score: 5, away_score: 5)

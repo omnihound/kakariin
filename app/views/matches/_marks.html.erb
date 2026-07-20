@@ -1,0 +1,14 @@
+<div class="marks">
+  <% marks.each do |m| %>
+    <% if m[:ippon] %>
+      <span class="mark mark-<%= m[:ippon].technique %>">
+        <%= ippon_mark(m[:ippon]) %>
+        <% unless read_only %>
+          <%= button_to "×", match_ippon_path(match, m[:ippon], **scorer_params), method: :delete, class: "mark-remove" %>
+        <% end %>
+      </span>
+    <% else %>
+      <span class="mark mark-hansoku-point" title="Ippon awarded: opponent's 2nd hansoku">H</span>
+    <% end %>
+  <% end %>
+</div>
