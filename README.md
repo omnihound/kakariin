@@ -1,24 +1,52 @@
-# README
+# Kakariin
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Kakariin (掛かり員 — the officials who run a kendo shiai-jō) is a Rails app for
+running kendo tournaments: registration, bracket/pool generation, live
+court scoring, and spectator views.
 
-Things you may want to cover:
+## Features
 
-* Ruby version
+* **Tournaments & divisions** — individual or team divisions, each run as
+  single elimination, round robin, or pools followed by an elimination
+  bracket.
+* **Registration** — competitors register into a division; team divisions
+  build entries from team memberships and lineups.
+* **Pools** — snake-seeded pool generation and standings (wins, then ippon
+  difference, then seed).
+* **Live scoring** — a court scorer view records ippons by technique
+  (men/kote/dou/tsuki) and hansoku fouls (two hansoku against a competitor
+  award their opponent an ippon); team matches are scored bout by bout
+  (senpo/jiho/chuken/fukusho/taisho).
+* **Court status board & spectator views** — current/next match per court
+  and live bracket/pool updates, pushed over Action Cable so nothing needs
+  a manual refresh.
 
-* System dependencies
+## Getting started
 
-* Configuration
+Requirements: Ruby 3.4.8 (see [.ruby-version](.ruby-version)) and PostgreSQL.
 
-* Database creation
+```
+bin/setup
+```
 
-* Database initialization
+This installs gems and prepares the database. Then start the dev server:
 
-* How to run the test suite
+```
+bin/dev
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+## Running tests
 
-* Deployment instructions
+```
+bin/rails test
+```
 
-* ...
+## Deployment
+
+The app is built as a Docker image for deployment with
+[Kamal](https://kamal-deploy.org):
+
+```
+docker build -t kakariin .
+docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name kakariin kakariin
+```
