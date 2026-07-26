@@ -45,4 +45,38 @@ class CourtTest < ActiveSupport::TestCase
 
     assert_equal scheduled, court.next_match
   end
+
+  test "next_match stays within the in-progress match's division even if another division's match sorts earlier" do
+    court = courts(:court_1)
+    same_division_next = matches(:pool_a_r1_completed)
+    same_division_next.update!(court: court, status: "pending", winner: nil, round: 2, scheduled_at: 2.hours.from_now)
+    other_division = matches(:individual_r1)
+    other_division.update!(court: court, scheduled_at: 1.hour.from_now)
+    in_progress = matches(:pool_a_r2_completed)
+    in_progress.update!(court: court, status: "in_progress", winner: nil)
+
+    assert_equal same_division_next, court.next_match
+  end
+
+  test "next_match stays within the most recently finished division before falling back to another" do
+    court = courts(:court_1)
+    finished = matches(:pool_a_r1_completed)
+    finished.update!(court: court, status: "completed", updated_at: Time.current)
+    same_division_next = matches(:pool_a_r2_completed)
+    same_division_next.update!(court: court, status: "pending", winner: nil, scheduled_at: 2.hours.from_now)
+    other_division = matches(:individual_r1)
+    other_division.update!(court: court, scheduled_at: 1.hour.from_now)
+
+    assert_equal same_division_next, court.next_match
+  end
+
+  test "next_match crosses into another division once the sticky division has nothing pending" do
+    court = courts(:court_1)
+    finished = matches(:pool_a_r1_completed)
+    finished.update!(court: court, status: "completed", updated_at: Time.current)
+    other_division = matches(:individual_r1)
+    other_division.update!(court: court)
+
+    assert_equal other_division, court.next_match
+  end
 end
